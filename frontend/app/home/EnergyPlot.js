@@ -3,7 +3,6 @@
 import React from "react";
 import "chart.js/auto";
 import { Line } from "react-chartjs-2";
-// import 'chartjs-plugin-downsample';
 
 let steps = [];
 let totalEnergy = [];
@@ -2046,71 +2045,81 @@ let log = `<omitted some lines>
   Total wall time: 0:07:12
   `; //sample data will be filled in later 
 log.split('\n').forEach(line => {
-  if (line.includes("Step          CPU")) {
-    // Start of table
-    insideData = true;
-    return;
-  }
-  if (insideData && line.includes("Loop time of")) {
-    // End of table
-    insideData = false;
-    return;
-  }
-  if (insideData) {
-    let columns = line.trim().split(/\s+/);
-    let step = parseInt(columns[0]);
-    let energy = parseFloat(columns[2]);
-    steps.push(step);
-    totalEnergy.push(energy);
-  }
+    if (line.includes("Step          CPU")) {
+        insideData = true;
+        return;
+    }
+    if (insideData && line.includes("Loop time of")) {
+        insideData = false;
+        return;
+    }
+    if (insideData) {
+        let columns = line.trim().split(/\s+/);
+        let step = parseInt(columns[0]);
+        let energy = parseFloat(columns[2]);
+        steps.push(step);
+        totalEnergy.push(energy);
+    }
 });
 
 const data = {
-  labels: steps,
-  datasets: [
-    {
-      label: "Step vs Total Energy",
-      backgroundColor: "rgb(255, 99, 132)",
-      borderColor: "rgb(255, 99, 132)",
-      data: totalEnergy,
-      // parsing: false,
-      // lineTension: 0.4,
-      // stepped: true
-    }
-  ]
+    labels: steps,
+    datasets: [
+        {
+            label: "Step vs Total Energy",
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            data: totalEnergy,
+            fill: true,
+            tension: 0.4,
+        }
+    ]
 };
 
 const options = {
-  plugins: {
-    // downsample: {
-    //   enabled: true,
-    //   threshold: 100,
-    // },
-    title: {
-      text: "Total Energy",
-      display: true
-    }
-  },
-  scales: {
-    x: {
-      title: {
-        display: true,
-        text: 'Step'
-      }
+    plugins: {
+        title: {
+            text: "Total Energy",
+            display: true,
+            font: {
+                size: 20,
+            },
+            padding: {
+                top: 10,
+                bottom: 30
+            }
+        },
+        legend: {
+            display: true,
+            position: 'top',
+        },
     },
-    y: {
-      title: {
-        display: true,
-        text: 'Total Energy'
-      }
+    scales: {
+        x: {
+            title: {
+                display: true,
+                text: 'Step',
+                font: {
+                    size: 14,
+                }
+            }
+        },
+        y: {
+            title: {
+                display: true,
+                text: 'Total Energy',
+                font: {
+                    size: 14,
+                }
+            }
+        }
     }
-  }
 };
 
 const LineChart = () => {
-  return (
-    <Line data={data} options={options} />
-  );
+    return (
+        <Line data={data} options={options} />
+    );
 };
 
 export default LineChart;
