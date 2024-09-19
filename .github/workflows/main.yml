@@ -23,8 +23,8 @@ jobs:
       run: |
         if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
           echo "Deploying to production..."
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} "bash /home/user/production_deploy.sh"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} "bash /root/production_deploy.sh"
         elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
           echo "Deploying to staging..."
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} "bash /home/user/staging_deploy.sh"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_USER }}@${{ secrets.DO_HOST }} "bash /root/staging_deploy.sh"
         fi

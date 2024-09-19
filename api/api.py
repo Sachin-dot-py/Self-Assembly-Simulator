@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 import subprocess
 import os
+import sys
 import requests
 
 p = None # Jupyter notebook server process
@@ -106,8 +107,14 @@ api.add_resource(Visualize, '/api/visualize')
 api.add_resource(Calculate, '/api/calculate/')
 
 if __name__ == '__main__':
+    port = 8000  # Default port
+    if len(sys.argv) > 1:
+        try:
+            port = int(sys.argv[1])  # Get the port number from command-line arguments
+        except ValueError:
+            print("Invalid port number. Using default port 8000.")
     try:
-        app.run(host='0.0.0.0', port=8000)
+        app.run(host='0.0.0.0', port=port)
     finally:
         if p:
             p.kill()
