@@ -294,3 +294,6 @@ dist
 
 # MacOS
 .DS_Store
+
+# Temp
+api/temp/*

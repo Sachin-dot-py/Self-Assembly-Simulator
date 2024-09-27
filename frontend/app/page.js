@@ -1,22 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react'
 import styles from "./page.module.css";
+import Navigation from './components/Navigation';
 
 export default function Home() {
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-
-//   fetch('/api/')
-//       .then(res => res.json())
-//       .then(data => {
-//           setMessage(data.hello);
-//           setLoading(false);
-//       })
 
     return (
+        <>
+        <Navigation />
         <div className={styles.container}>
-            <p> {!loading ? message : "Loading.."}</p>
+            <p> Welcome! </p>
         </div>
+        </>
     );
 }

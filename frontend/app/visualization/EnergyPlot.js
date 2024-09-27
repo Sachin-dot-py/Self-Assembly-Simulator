@@ -44,6 +44,7 @@ const options = {
         }
     },
     responsive: true,
+    animation: false,
     // maintainAspectRatio: false,
 };
 
@@ -61,9 +62,9 @@ export default function EnergyPlot({ visualId, sliderValue }) { // Accept slider
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('/api/getfile/logfile' + visualId + '.log');
+                const response = await fetch('/api/getfiles/' + visualId);
                 const data = await response.json();
-                const content = data.content;
+                const content = data.log;
                 setLog(content);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -74,7 +75,7 @@ export default function EnergyPlot({ visualId, sliderValue }) { // Accept slider
     }, [visualId]);
 
     log.split('\n').forEach(line => {
-        if (line.includes("Step          CPU")) {
+        if (line.includes("Step          Time")) {
             insideData = true;
             return;
         }

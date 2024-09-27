@@ -1,0 +1,47 @@
+# Load the BGF structure
+mol new input.bgf
+
+# Load the LAMMPSTRJ trajectory
+mol addfile master.lammpstrj type lammpstrj
+
+# Check if the molecule and trajectory are loaded correctly
+set mol_id [molinfo top]
+if { $mol_id == -1 } {
+    puts "Error: Molecule failed to load."
+    exit
+}
+
+set num_frames [molinfo top get numframes]
+if { $num_frames == 0 } {
+    puts "Error: Trajectory failed to load."
+    exit
+}
+
+puts "Molecule and trajectory loaded successfully."
+
+# Set up the representation
+mol representation VDW
+mol color Name
+mol addrep top
+
+# Set up the display
+display resetview
+display resize 1920 1080
+
+# Define variables for rotation
+set rotation_step [expr 360 / $num_frames]  ;# Rotate 360 degrees over the trajectory
+set rotation_angle 0  ;# Start from 0 degrees
+
+# Loop over trajectory frames and render each one as an image
+for {set i 0} {$i < $num_frames} {incr i} {
+    animate goto $i
+
+    # Rotate the camera
+    rotate y by $rotation_step
+    incr rotation_angle $rotation_step
+
+    # Render each frame to a TGA file
+    render TachyonInternal frame_$i.tga
+}
+
+exit

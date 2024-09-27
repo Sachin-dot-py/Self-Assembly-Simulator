@@ -23,7 +23,7 @@ const nextConfig = {
     missingSuspenseWithCSRBailout: false, 
   },
   // For Docker
-  output: "standalone",
+  // output: "standalone",
   // Base URL for frontend app, used for setting custom environment variables
   env: {
     BASE_API_URL: process.env.NODE_ENV === 'staging' ? 'http://127.0.0.1:8001' : 'http://127.0.0.1:8000',

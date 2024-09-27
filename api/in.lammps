@@ -1,0 +1,57 @@
+units                real
+atom_style           full
+boundary             p p p
+dielectric           1
+special_bonds        lj/coul 0.0 0.0 1.0
+                     
+pair_style           lj/charmm/coul/charmm 13 14.00000
+bond_style           none
+angle_style          none
+dihedral_style       none
+improper_style       none
+kspace_style         none
+                     
+read_data            data.lammps
+                     
+                     
+                     
+pair_modify          mix geometric
+neighbor             2.0 multi
+neigh_modify         every 2 delay 4 check yes
+thermo_style         multi
+thermo_modify        line multi format float %14.6f flush yes
+variable             input string in.lammps
+variable             sname string lammps
+                     
+                     
+timestep             1
+                     
+print                .
+print                ==========================================
+print                "500 steps CG Minimization"
+print                ==========================================
+print                .
+
+thermo_style         custom step time etotal evdwl ecoul epair ebond eangle edihed eimp emol elong etail enthalpy ecouple econserve ke pe temp press vol density
+dump                 1 all custom 10 ${sname}.visualize.lammpstrj id type xu yu zu vx vy vz
+thermo               10
+min_style            sd
+minimize             0 1.0e-6 5000 50000
+min_style            cg
+minimize             0 1.0e-6 5000 50000
+#now                 minimize the entire system
+minimize             0 1.0e-6 5000 50000
+                     
+                     
+print                .
+print                =====================================
+print                "NVT dynamics to heat system"
+print                =====================================
+print                .
+                                          
+velocity             all create 0.0 12345678 dist uniform
+thermo               100
+fix                  4 all nvt temp 1.0 ${rtemp} 100.0
+run                  100000
+unfix                4
+undump               1

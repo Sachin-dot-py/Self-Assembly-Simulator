@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import FormRange from 'react-bootstrap/FormRange';
 import Button from 'react-bootstrap/Button';
 
-export default function VideoVisual({ filename, onProgressChange }) {
+export default function VideoVisual({ visualId, onProgressChange }) {
     const vidRef = useRef(null);
     const [progress, setProgress] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -54,7 +54,7 @@ export default function VideoVisual({ filename, onProgressChange }) {
                 onTimeUpdate={handleTimeUpdate}
                 onEnded={handleVideoEnded}
             >
-                <source src={filename} type="video/mp4" />
+                <source src={`/api/getvideo/${visualId}`} type="video/mp4" />
             </video>
 
             <div>

@@ -1,12 +1,11 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
+from flask import send_file, jsonify
 import subprocess
 import os
+import uuid
 import sys
-import requests
 
-p = None # Jupyter notebook server process
-TOKEN = "f9a3bd4e9f2c3be01cd629154cfb224c2703181e050254b5" # Arbitrary token chosen for authentication
 app = Flask(__name__)
 api = Api(app)
 
@@ -18,93 +17,155 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
 
-# Run jupyter notebook server
-@app.before_request
-def run_jupyter():
-    global p
-    # Ensure this only runs before the first request
-    app.before_request_funcs[None].remove(run_jupyter)
-
-    # Starts running the Jupyter notebook server
-    p = subprocess.Popen(["python3", "-m", "jupyter", "notebook", "--port=8888", f"--IdentityProvider.token={TOKEN}", "--no-browser"])
-
 class HelloWorld(Resource):
     def get(self):
         return {'hello': 'world'}
 
-class TempFileHandler(Resource):
-    def get(self, filename):
-        # parser = reqparse.RequestParser()
-        # parser.add_argument('filename', type=str, help='The file name that you wish to retrieve from the temp directory')
-        # args = parser.parse_args()
+class VisualFileHandler(Resource):
+    def get(self, visualId):
+        # Directory path for the requested visualId
+        visual_dir = os.path.join('temp', visualId)
 
-        if "/" in filename or not os.path.exists(f'temp/{filename}'):
-            return {"error": "Invalid filename"}
+        # Check if the visualId directory exists
+        if not os.path.exists(visual_dir):
+            return {"error": "Invalid visualId"}, 404
 
-        with open(f'temp/{filename}', 'r') as f:
-            output = f.read()
-        
-        return {"content": output}
+        # Define file paths
+        bgf_file = os.path.join(visual_dir, 'input.bgf')
+        traj_file = os.path.join(visual_dir, 'master.lammpstrj')
+        log_file = os.path.join(visual_dir, 'log.lammps')
+
+        # Ensure that all files exist
+        if not all([os.path.exists(bgf_file), os.path.exists(traj_file), os.path.exists(log_file)]):
+            return {"error": "One or more files not found"}, 404
+
+        # Read and return the contents of each file
+        with open(bgf_file, 'r') as f:
+            bgf_content = f.read()
+        with open(traj_file, 'r') as f:
+            traj_content = f.read()
+        with open(log_file, 'r') as f:
+            log_content = f.read()
+
+        return jsonify({
+            'topology': bgf_content,
+            'trajectory': traj_content,
+            'log': log_content
+        })
+    
+class VideoFileHandler(Resource):
+    def get(self, visualId):
+        # Directory path for the requested visualId
+        visual_dir = os.path.join('temp', visualId)
+
+        # Define the path for the video file
+        video_file = os.path.join(visual_dir, 'visualization.mp4')
+
+        # Check if the video file exists
+        if not os.path.exists(video_file):
+            return {"error": "Video file not found"}, 404
+
+        # Send the video file to the frontend
+        return send_file(video_file, mimetype='video/mp4')
+
 
 class Visualize(Resource):
     def post(self):
         # Parse the input data
         parser = reqparse.RequestParser()
         parser.add_argument('molfile', type=str, help='The molfile input (v2000)')
+        parser.add_argument('temperature', type=int, help='The simulation temperature in Kelvin', default=298)
         args = parser.parse_args()
 
-        # Find an unused filename from molfile1.mol, molfile2.mol, ...
-        if not os.path.exists('temp'):
-            os.makedirs('temp')
-        
-        i = 1
-        while os.path.exists(f'temp/molfile{i}.mol'):
-            i += 1
+        # Generate a unique visualId using UUID
+        visual_id = str(uuid.uuid4())
 
-        # Save the molfile to a new file in the temp directory
-        with open(f'temp/molfile{i}.mol', 'w') as f:
+        # Create a directory with the visualId as the name
+        visual_dir = os.path.join('temp', visual_id)
+        os.makedirs(visual_dir, exist_ok=True)
+
+        # Save the molfile to a new file in the directory
+        molfile_path = os.path.join(visual_dir, 'input.mol')
+        with open(molfile_path, 'w') as f:
             f.write(args['molfile'])
 
-        # Run the scripts to generate output files
-        # Need to create the topology{}.html, trajectory{}.html, visual{}.html, logfile{}.html
-        # For now, executes a Jupyter notebook to visualize the same mol file.
+        # Perform the simulation
+
+        # Step 1: Run Open Babel to convert .mol to .bgf format
+        obabel_command = ['/root/anaconda3/bin/obabel', '-imol', 'input.mol', '-obgf', '-O', 'input.bgf']
+        subprocess.run(obabel_command, cwd=visual_dir, check=True)
+
+        # Step 2: Run the createLammpsInput.pl script with the .bgf file and merge generated in.lammps with template in.lammps
+        create_lammps_input_command = ['/root/ATLAS-toolkit/scripts/createLammpsInput.pl', '-b', 'input.bgf', '-f', 'UFF']
+        subprocess.run(create_lammps_input_command, cwd=visual_dir, check=True)
+
+        with open(os.path.join(visual_dir, 'in.lammps'), 'r') as f:
+            current_lines = f.readlines()
+
+        with open('in.lammps', 'r') as f:
+            template_lines = f.readlines()
+
+        # Find the index of 'timestep 1' in both files
+        timestep_line = 'timestep             1'
+        current_split_idx = next(i for i, line in enumerate(current_lines) if timestep_line in line)
+        outer_split_idx = next(i for i, line in enumerate(template_lines) if timestep_line in line)
+
+        # Combine everything before the 'timestep 1' line from the current file
+        # with everything after the 'timestep 1' line from the outer file
+        merged_content = current_lines[:current_split_idx + 1] + template_lines[outer_split_idx + 1:]
+
+        # Overwrite the current in.lammps with the merged content
+        with open(os.path.join(visual_dir, 'in.lammps'), 'w') as f:
+            f.writelines(merged_content)
+    
+        # Step 3: Remove the files 'in.lammps_singlepoint' and 'lammps.lammps.slurm'
+        files_to_remove = ['in.lammps_singlepoint', 'lammps.lammps.slurm']
+        for filename in files_to_remove:
+            file_path = os.path.join(visual_dir, filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        # Step 4: Run LAMMPS with the given temperature
+        lammps_command = ['/root/lammps/build/lmp', '-in', 'in.lammps', '-var', 'rtemp', str(args['temperature'])]
+        subprocess.run(lammps_command, cwd=visual_dir, check=True)
+
+        # Step 5: Concatenate lammps.min.lammpstrj and lammps.heat.lammpstrj into master.lammpstrj
+        # with open(os.path.join(visual_dir, 'master.lammpstrj'), 'wb') as master_file:
+        #     for file_name in ['lammps.min.lammpstrj', 'lammps.heat.lammpstrj']:
+        #         file_path = os.path.join(visual_dir, file_name)
+        #         if os.path.exists(file_path):
+        #             with open(file_path, 'rb') as f:
+        #                 master_file.write(f.read())
+
+        # Above lines removed because it's now called lammps.visualize.lammpstrj
         
-        # Duplicate the visualizer notebook to a new file
-        with open('visuals_template.ipynb', 'r') as f:
-            notebook = f.read()
+        os.rename(os.path.join(visual_dir, 'lammps.visualize.lammpstrj'), os.path.join(visual_dir, 'master.lammpstrj'))
 
-        notebook.replace("-19", str(i)) # Set the visual_id in the notebook
+        # Create the visualization
 
-        with open(f'temp/notebook{i}.ipynb', 'w') as f:
-            f.write(notebook)
+        # Step 1: Run VMD to generate individual frame files (.tga)
+        vmd_command = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize.vmd']
+        subprocess.run(vmd_command, cwd=visual_dir, check=True)
 
-        # Execute the notebook
+        # Step 2: Combine .tga frames into a video using FFmpeg
+        ffmpeg_command = ['/usr/bin/ffmpeg', '-framerate', '3', '-i', 'frame_%d.tga', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', 'visualization.mp4']
+        subprocess.run(ffmpeg_command, cwd=visual_dir, check=True)
 
+        # Step 3: Remove all .tga files
+        for file in os.listdir(visual_dir):
+            if file.endswith('.tga'):
+                os.remove(os.path.join(visual_dir, file))
 
-        # Read output files and return the data
-        # with open(f'temp/molfile{i}.mol', 'r') as f:
-        #     output = f.read()
+        # Output files: visualization.mp4, input.bgf (topology), master.lammpstrj (trajectory), log.lammps (LAMMPS log)
 
-        # Delete all the temp files created in the process
-        # os.remove(f'temp/molfile{i}.mol')
-
-        return {'visualId': i}
-
-class Calculate(Resource):
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('num1', type=int, help='Number 1')
-        parser.add_argument('num2', type=int, help='Number 2')
-        args = parser.parse_args()
-        result = args['num1'] + args['num2']
-        return "The result is " + result
+        # Return the visualId to the client
+        return {'visualId': visual_id}
 
 
-# test
 api.add_resource(HelloWorld, '/api/')
-api.add_resource(TempFileHandler, '/api/getfile/<string:filename>')
+api.add_resource(VisualFileHandler, '/api/getfiles/<string:visualId>')
+api.add_resource(VideoFileHandler, '/api/getvideo/<string:visualId>')
 api.add_resource(Visualize, '/api/visualize')
-api.add_resource(Calculate, '/api/calculate/')
 
 if __name__ == '__main__':
     port = 8000  # Default port
@@ -113,9 +174,4 @@ if __name__ == '__main__':
             port = int(sys.argv[1])  # Get the port number from command-line arguments
         except ValueError:
             print("Invalid port number. Using default port 8000.")
-    try:
-        app.run(host='0.0.0.0', port=port)
-    finally:
-        if p:
-            p.kill()
-        requests.post(f"http://localhost:8888/api/shutdown?token={TOKEN}")
+    app.run(host='0.0.0.0', port=port)
