@@ -291,8 +291,8 @@ class GoldNanoparticleVideoFileHandler(Resource):
 api.add_resource(HelloWorld, '/api/')
 api.add_resource(VisualFileHandler, '/api/getfiles/<string:visualId>')
 api.add_resource(VideoFileHandler, '/api/getvideo/<string:visualId>')
-api.add_resource(GoldNanoparticleVisualFileHandler, '/api/gold-nanoparticles/files/<string:surfactant>/<string:ratio>')
-api.add_resource(GoldNanoparticleVideoFileHandler, '/api/gold-nanoparticles/video/<string:surfactant>/<string:ratio>')
+api.add_resource(GoldNanoparticleVisualFileHandler, '/api/getfiles/<string:surfactant>/<string:ratio>')
+api.add_resource(GoldNanoparticleVideoFileHandler, '/api/getvideo/<string:surfactant>/<string:ratio>')
 api.add_resource(Visualize, '/api/visualize')
 api.add_resource(VisualizationStatus, '/api/status/<string:visualId>')
 
