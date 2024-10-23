@@ -47,8 +47,7 @@ const options = (variableName, variableUnit) => ({
     animation: false,
 });
 
-export default function VariablePlot({ visualId, sliderValue, variableIndex, variableName, variableUnit }) {
-    const [log, setLog] = useState('');
+export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit }) {
     const [maxSteps, setMaxSteps] = useState(100);
 
     let steps = [];
@@ -60,21 +59,7 @@ export default function VariablePlot({ visualId, sliderValue, variableIndex, var
     const minimizationColor = 'rgba(54, 162, 235, 1)';
     const heatingColor = 'rgba(255, 99, 132, 1)';
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('/api/getfiles/' + visualId);
-                const data = await response.json();
-                const content = data.log;
-                setLog(content);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        fetchData();
-    }, [visualId]);
-
+    // Process the log data
     log.split('\n').forEach(line => {
         if (line.includes("500 steps CG Minimization")) {
             currentPhase = 'minimization';
