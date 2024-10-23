@@ -20,6 +20,7 @@ function Navigation() {
           <Nav className="me-auto">
             <Nav.Link href="/">Home</Nav.Link>
             <Nav.Link href="/ionic-bonding">Ionic Bonding</Nav.Link>
+            <Nav.Link href="/gold-nanoparticles">Gold Nanoparticles</Nav.Link>
             {/* <Nav.Link href="/visualization?visualId=40490db3-9ddc-4978-a7c6-0505e00beb30">Example Visualization</Nav.Link> */}
           </Nav>
         </Container>
