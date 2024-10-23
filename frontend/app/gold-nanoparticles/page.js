@@ -170,7 +170,7 @@ export default function SurfactantForm() {
                     <h2 className={styles.visualizationHeader}>Self-Assembly Visualization</h2>
                     <Row>
                         <Col className={styles.visualizationCol}>
-                            <VideoVisual log={log} onProgressChange={handleSliderChange} />
+                            <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
                         </Col>
                         <Col className={styles.textCol}>
                             <div className={styles.explanationText}>

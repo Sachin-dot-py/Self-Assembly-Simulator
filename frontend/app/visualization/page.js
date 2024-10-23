@@ -44,7 +44,7 @@ export default function Page() {
             <Container className={styles.pageContainer}>
                 <Row>
                     <Col className={styles.visualizationCol}>
-                        <VideoVisual log={log} onProgressChange={handleSliderChange} />
+                        <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
                     </Col>
                     <Col className={styles.textCol}>
                         <div className={styles.explanationText}>Explanation text <br /> Explanation text</div>
