@@ -259,17 +259,11 @@ class GoldNanoparticleVisualFileHandler(Resource):
         if not all([os.path.exists(bgf_file), os.path.exists(traj_file), os.path.exists(log_file)]):
             return {"error": "One or more files not found"}, 404
 
-        # Read and return the contents of each file
-        with open(bgf_file, 'r') as f:
-            bgf_content = f.read()
-        with open(traj_file, 'r') as f:
-            traj_content = f.read()
+        # Read and return the contents of log file
         with open(log_file, 'r') as f:
             log_content = f.read()
 
         return jsonify({
-            'topology': bgf_content,
-            'trajectory': traj_content,
             'log': log_content
         })
 
