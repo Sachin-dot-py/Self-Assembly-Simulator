@@ -241,10 +241,58 @@ class VisualizationStatus(Resource):
             app.logger.error(f"Error occurred while checking status: {str(e)}")
             return jsonify({'error': 'Internal Server Error', 'message': str(e)}), 500
 
+class GoldNanoparticleVisualFileHandler(Resource):
+    def get(self, surfactant, ratio):
+        # Directory path for the requested surfactant and ratio
+        base_dir = os.path.join('temp', 'gold-nanoparticles', f'Au_{surfactant}_WAT', ratio)
+
+        # Check if the directory for the requested surfactant and ratio exists
+        if not os.path.exists(base_dir):
+            return {"error": "Invalid surfactant or ratio"}, 404
+
+        # Define file paths
+        bgf_file = os.path.join(base_dir, f'Au_{surfactant}_WAT.bgf')
+        traj_file = os.path.join(base_dir, f'Au_{surfactant}_WAT.visualization.lammpstrj')
+        log_file = os.path.join(base_dir, f'Au_{surfactant}_WAT.298K.equil.lammps.log')
+
+        # Ensure that all files exist
+        if not all([os.path.exists(bgf_file), os.path.exists(traj_file), os.path.exists(log_file)]):
+            return {"error": "One or more files not found"}, 404
+
+        # Read and return the contents of each file
+        with open(bgf_file, 'r') as f:
+            bgf_content = f.read()
+        with open(traj_file, 'r') as f:
+            traj_content = f.read()
+        with open(log_file, 'r') as f:
+            log_content = f.read()
+
+        return jsonify({
+            'topology': bgf_content,
+            'trajectory': traj_content,
+            'log': log_content
+        })
+
+class GoldNanoparticleVideoFileHandler(Resource):
+    def get(self, surfactant, ratio):
+        # Directory path for the requested surfactant and ratio
+        base_dir = os.path.join('temp', 'gold-nanoparticles', f'Au_{surfactant}_WAT', ratio)
+
+        # Define the path for the video file
+        video_file = os.path.join(base_dir, 'visualization.mp4')
+
+        # Check if the video file exists
+        if not os.path.exists(video_file):
+            return {"error": "Video file not found"}, 404
+
+        # Send the video file to the frontend
+        return send_file(video_file, mimetype='video/mp4')
 
 api.add_resource(HelloWorld, '/api/')
 api.add_resource(VisualFileHandler, '/api/getfiles/<string:visualId>')
 api.add_resource(VideoFileHandler, '/api/getvideo/<string:visualId>')
+api.add_resource(GoldNanoparticleVisualFileHandler, '/api/gold-nanoparticles/files/<string:surfactant>/<string:ratio>')
+api.add_resource(GoldNanoparticleVideoFileHandler, '/api/gold-nanoparticles/video/<string:surfactant>/<string:ratio>')
 api.add_resource(Visualize, '/api/visualize')
 api.add_resource(VisualizationStatus, '/api/status/<string:visualId>')
 
