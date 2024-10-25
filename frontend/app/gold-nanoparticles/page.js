@@ -42,6 +42,11 @@ export default function SurfactantForm() {
 
     const handleSurfactantChange = (e) => {
         setSurfactant(e.target.value);
+        if (e.target.value === 'NONE') {
+            setRatio('0.0');
+        } else {
+            setRatio('');
+        }
     };
 
     const handleRatioChange = (e) => {
@@ -66,6 +71,16 @@ export default function SurfactantForm() {
                     <Form.Group controlId="formSurfactant" className={styles.formGroup}>
                         <Form.Label>Choose Surfactant</Form.Label>
                         <div className={styles.radioGroup}>
+                            <Form.Check
+                                type="radio"
+                                name="surfactant"
+                                id="surfactant-NONE"
+                                label={<label htmlFor="surfactant-NONE">No Surfactant</label>}
+                                value="NONE"
+                                checked={surfactant === 'NONE'}
+                                onChange={handleSurfactantChange}
+                                className={styles.radioButton}
+                            />
                             <Form.Check
                                 type="radio"
                                 name="surfactant"
@@ -119,47 +134,49 @@ export default function SurfactantForm() {
                         </div>
                     </Form.Group>
 
-                    <Form.Group controlId="formRatio" className={styles.formGroup}>
-                        <Form.Label>Choose Surfactant to Water Ratio</Form.Label>
-                        <div className={styles.radioGroup}>
-                            <Form.Check
-                                type="radio"
-                                name="ratio"
-                                id="ratio-0.5"
-                                label={<label htmlFor="ratio-0.5">Half the molarity of Gold (0.5)</label>}
-                                value="0.5"
-                                checked={ratio === '0.5'}
-                                onChange={handleRatioChange}
-                                className={styles.radioButton}
-                            />
-                            <Form.Check
-                                type="radio"
-                                name="ratio"
-                                id="ratio-1.0"
-                                label={<label htmlFor="ratio-1.0">Same molarity of Gold (1.0)</label>}
-                                value="1.0"
-                                checked={ratio === '1.0'}
-                                onChange={handleRatioChange}
-                                className={styles.radioButton}
-                            />
-                            <Form.Check
-                                type="radio"
-                                name="ratio"
-                                id="ratio-1.5"
-                                label={<label htmlFor="ratio-1.5">1.5x the molarity of Gold (1.5)</label>}
-                                value="1.5"
-                                checked={ratio === '1.5'}
-                                onChange={handleRatioChange}
-                                className={styles.radioButton}
-                            />
-                        </div>
-                    </Form.Group>
+                    {surfactant !== 'NONE' && (
+                        <Form.Group controlId="formRatio" className={styles.formGroup}>
+                            <Form.Label>Choose Surfactant to Water Ratio</Form.Label>
+                            <div className={styles.radioGroup}>
+                                <Form.Check
+                                    type="radio"
+                                    name="ratio"
+                                    id="ratio-0.5"
+                                    label={<label htmlFor="ratio-0.5">Half the molarity of Gold (0.5)</label>}
+                                    value="0.5"
+                                    checked={ratio === '0.5'}
+                                    onChange={handleRatioChange}
+                                    className={styles.radioButton}
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    name="ratio"
+                                    id="ratio-1.0"
+                                    label={<label htmlFor="ratio-1.0">Same molarity of Gold (1.0)</label>}
+                                    value="1.0"
+                                    checked={ratio === '1.0'}
+                                    onChange={handleRatioChange}
+                                    className={styles.radioButton}
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    name="ratio"
+                                    id="ratio-1.5"
+                                    label={<label htmlFor="ratio-1.5">1.5x the molarity of Gold (1.5)</label>}
+                                    value="1.5"
+                                    checked={ratio === '1.5'}
+                                    onChange={handleRatioChange}
+                                    className={styles.radioButton}
+                                />
+                            </div>
+                        </Form.Group>
+                    )}
 
                     <Button
                         variant="primary"
                         type="submit"
                         className={styles.visualizeButton}
-                        disabled={!surfactant || !ratio} // Disable button until both surfactant and ratio are selected
+                        disabled={!surfactant || (surfactant !== 'NONE' && !ratio)} // Disable button until both surfactant and ratio are selected
                     >
                         Visualize
                     </Button>

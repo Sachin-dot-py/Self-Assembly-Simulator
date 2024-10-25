@@ -5,7 +5,7 @@ import subprocess
 
 # Define the base directory and the codes
 base_dir = "/root/production/api/temp/gold-nanoparticles"
-codes = ["CA", "MPA", "MUA", "OCD", "OLY"]
+codes = ["CA", "MPA", "MUA", "OCD", "OLY", "NONE"]
 ratios = ["0.5", "1.0", "1.5"]
 
 # Template for the VMD script
@@ -67,7 +67,10 @@ exit
 # Function to generate, run VMD, and create video with FFmpeg
 def process_visualization(code, ratio):
     # Set the directory path for the current code and ratio
-    visual_dir = os.path.join(base_dir, f"Au_{code}_WAT", ratio)
+    if code == "NONE":
+        visual_dir = os.path.join(base_dir, f"Au_{code}_WAT")
+    else:
+        visual_dir = os.path.join(base_dir, f"Au_{code}_WAT", ratio)
     
     # Replace placeholders in the template
     vmd_script_content = vmd_script_template.format(code=code)
@@ -106,5 +109,9 @@ def process_visualization(code, ratio):
 
 # Loop through each code and ratio combination
 for code in codes:
+    if code == "NONE":
+        process_visualization(code, "0.0")
+        continue
+    
     for ratio in ratios:
         process_visualization(code, ratio)
