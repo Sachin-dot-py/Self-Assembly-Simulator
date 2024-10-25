@@ -45,7 +45,7 @@ display resetview
 display resize 1920 1080
 
 # Define variables for rotation
-set rotation_step [expr 360 * 5 / $num_frames]
+set rotation_step [expr {360 / ($num_frames / 5)}] 
 set rotation_angle 0
 
 # Loop over trajectory frames and render each one as an image
