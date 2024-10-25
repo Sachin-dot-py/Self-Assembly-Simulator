@@ -44,6 +44,10 @@ mol addrep top
 display resetview
 display resize 1920 1080
 
+# Zoom in by factor 1.8
+display projection orthographic
+display scale 1.8
+
 # Define variables for rotation
 set rotation_step [expr {360 / ($num_frames / 5)}] 
 set rotation_angle 0
