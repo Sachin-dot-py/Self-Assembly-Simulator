@@ -23,6 +23,9 @@ export default function SurfactantForm() {
         const fetchData = async () => {
             try {
                 const response = await fetch('/api/getfiles/' + visualId);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
                 const data = await response.json();
                 setLog(data.log);
             } catch (error) {
