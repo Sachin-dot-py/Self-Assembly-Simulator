@@ -46,7 +46,7 @@ display resize 1920 1080
 
 # Zoom in by factor 1.8
 display projection orthographic
-display scale 1.8
+display scale 3.6
 
 # Define variables for rotation
 set rotation_step [expr {{360 / ($num_frames / 5)}}] 
