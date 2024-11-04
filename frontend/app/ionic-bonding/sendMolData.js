@@ -30,6 +30,10 @@ async function sendMolData() {
       clearInterval(interval);
       // Redirect to the visualization page after simulation completed
       window.location.href = '/visualization?visualId=' + visualId;
+    } else if (checkData.status === 'failed') {
+      clearInterval(interval);
+      // Display an alert if the status is failed
+      alert("The visualization failed. Please check your input structures and try again.");
     }
   }, 5000); // Poll every 5 seconds
 }
