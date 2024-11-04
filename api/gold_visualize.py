@@ -67,10 +67,7 @@ exit
 # Function to generate, run VMD, and create video with FFmpeg
 def process_visualization(code, ratio):
     # Set the directory path for the current code and ratio
-    if code == "NONE":
-        visual_dir = os.path.join(base_dir, f"Au_{code}_WAT")
-    else:
-        visual_dir = os.path.join(base_dir, f"Au_{code}_WAT", ratio)
+    visual_dir = os.path.join(base_dir, f"Au_{code}_WAT", ratio)
     
     # Replace placeholders in the template
     vmd_script_content = vmd_script_template.format(code=code)
