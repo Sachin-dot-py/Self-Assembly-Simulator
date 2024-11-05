@@ -1,6 +1,5 @@
 # Run the visualizations for all the gold nanoparticles examples.
 
-import glob
 import os
 import subprocess
 
@@ -45,9 +44,9 @@ mol addrep top
 display resetview
 display resize 1920 1080
 
-# Zoom in by factor 3.6
+# Zoom in
 display projection orthographic
-display scale 3.6
+display distance -3.0
 
 # Define variables for rotation
 set rotation_step [expr {{360 / ($num_frames / 10)}}] 
