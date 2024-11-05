@@ -46,7 +46,8 @@ display resize 1920 1080
 
 # Zoom in
 display projection orthographic
-display distance -3.0
+display distance -2.0
+display height 3.0
 
 # Define variables for rotation
 set rotation_step [expr {{360 / ($num_frames / 10)}}] 
