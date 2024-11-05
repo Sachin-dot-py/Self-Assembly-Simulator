@@ -50,7 +50,7 @@ display projection orthographic
 display scale 3.6
 
 # Define variables for rotation
-set rotation_step [expr {{360 / ($num_frames / 5)}}] 
+set rotation_step [expr {{360 / ($num_frames / 10)}}] 
 set rotation_angle 0
 
 # Loop over trajectory frames and render each one as an image
