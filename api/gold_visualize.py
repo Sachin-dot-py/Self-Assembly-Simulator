@@ -1,5 +1,6 @@
 # Run the visualizations for all the gold nanoparticles examples.
 
+import glob
 import os
 import subprocess
 
@@ -68,6 +69,18 @@ exit
 def process_visualization(code, ratio):
     # Set the directory path for the current code and ratio
     visual_dir = os.path.join(base_dir, f"Au_{code}_WAT", ratio)
+
+    # Remove all existing .tga files in the visual_dir
+    for file in os.listdir(visual_dir):
+        if file.endswith('.tga'):
+            os.remove(os.path.join(visual_dir, file))
+    print(f"Removed .tga files for {code} at ratio {ratio}")
+
+    # Delete visualization.mp4 in visual_dir if it exists
+    mp4_file_path = os.path.join(visual_dir, "visualization.mp4")
+    if os.path.exists(mp4_file_path):
+        os.remove(mp4_file_path)
+        print(f"Deleted {mp4_file_path}")
     
     # Replace placeholders in the template
     vmd_script_content = vmd_script_template.format(code=code)
