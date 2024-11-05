@@ -44,7 +44,7 @@ mol addrep top
 display resetview
 display resize 1920 1080
 
-# Zoom in by factor 1.8
+# Zoom in by factor 3.6
 display projection orthographic
 display scale 3.6
 
