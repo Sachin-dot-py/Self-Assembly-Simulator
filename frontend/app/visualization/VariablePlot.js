@@ -71,6 +71,9 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
             insideData = true;
             return;
         }
+        if (insideData && (line.includes("SHAKE") || line.includes("Bond"))) {
+            return;
+        }
         if (insideData && line.includes("Loop time of")) {
             insideData = false;
             return;
