@@ -11,7 +11,7 @@ ratios = ["0.5", "1.0", "1.5"]
 # Template for the VMD script
 vmd_script_template = """
 # Load the BGF structure
-mol new AU_{code}_WAT.bgf autobonds off
+mol new Au_{code}_WAT.bgf autobonds off
 
 # Load the LAMMPSTRJ trajectory
 mol addfile Au_{code}_WAT.visualization.lammpstrj type lammpstrj first 0 last -1 step 1 waitfor all
