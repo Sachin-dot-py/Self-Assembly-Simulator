@@ -131,7 +131,7 @@ class Visualize(Resource):
             # Parse the input data
             parser = reqparse.RequestParser()
             parser.add_argument('molfile', type=str, help='The molfile input (v3000)')
-            parser.add_argument('temperature', type=int, help='The simulation temperature in Kelvin', default=298)
+            parser.add_argument('temperature', type=int, help='The simulation temperature in Kelvin', default=350)
             args = parser.parse_args()
 
             # Generate a unique visualId using UUID
