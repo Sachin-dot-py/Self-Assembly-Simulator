@@ -194,7 +194,7 @@ class Visualize(Resource):
                     os.remove(file_path)
 
             # Step 4: Run LAMMPS with the given temperature
-            lammps_command = ['/root/lammps/build/lmp', '-in', 'in.lammps', '-var', 'rtemp', str(temperature)]
+            lammps_command = ['mpirun', '/root/lammps/build/lmp', '-in', 'in.lammps', '-var', 'rtemp', str(temperature)]
             subprocess.run(lammps_command, cwd=visual_dir, check=True)
 
             # Step 5: Rename lammps.visualize.lammpstrj to master.lammpstrj
