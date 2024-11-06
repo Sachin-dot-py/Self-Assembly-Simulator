@@ -52,58 +52,18 @@ export default function Page() {
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
+                    </Col>
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col className={styles.plotCol}>
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="eV" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Coulomb Energy" variableUnit="eV" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Pair Energy" variableUnit="eV" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={7} variableName="Bond Energy" variableUnit="eV" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={8} variableName="Angle Energy" variableUnit="eV" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={9} variableName="Dihedral Energy" variableUnit="eV" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={10} variableName="Improper Energy" variableUnit="eV" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={11} variableName="Molecular Energy" variableUnit="eV" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={12} variableName="Long-Range Energy" variableUnit="eV" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={13} variableName="Tail Correction Energy" variableUnit="eV" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Van der Waals Energy" variableUnit="eV" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={14} variableName="Energy Coupling" variableUnit="eV" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={15} variableName="Energy Conservation" variableUnit="eV" />
                     </Col>
                 </Row>
                 <Row>
@@ -116,18 +76,10 @@ export default function Page() {
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={12} variableName="Long-Range Energy" variableUnit="eV" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Volume" variableUnit="A^3" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={6} variableName="Density" variableUnit="g/cm^3" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={12} variableName="Enthalpy" variableUnit="eV" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Van der Waals Energy" variableUnit="eV" />
                     </Col>
                 </Row>
             </Container>
