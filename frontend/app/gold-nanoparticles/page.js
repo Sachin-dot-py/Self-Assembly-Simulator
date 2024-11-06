@@ -33,10 +33,10 @@ export default function SurfactantForm() {
                 setError('Error fetching data');
             }
         };
-        if (visualId.includes('.')) {
+        if (showVisualization) {
             fetchData();
         }
-    }, [visualId]);
+    }, [visualId, showVisualization]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -46,6 +46,7 @@ export default function SurfactantForm() {
 
     const handleSurfactantChange = (e) => {
         setSurfactant(e.target.value);
+        setShowVisualization(false); // Reset visualization state to trigger update
         if (e.target.value === 'NONE') {
             setRatio('0.0');
         } else {
@@ -55,6 +56,7 @@ export default function SurfactantForm() {
 
     const handleRatioChange = (e) => {
         setRatio(e.target.value);
+        setShowVisualization(false); // Reset visualization state to trigger update
     };
 
     const handleSliderChange = (value) => {
