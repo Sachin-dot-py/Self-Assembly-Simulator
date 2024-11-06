@@ -81,7 +81,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         if (insideData) {
             let columns = line.trim().split(/\s+/);
             let step = parseInt(columns[0]);
-            if (step <= 40) return;  // Skip first few iterations due to inaccuracies
+            if (step <= 2500) return;  // TODO: Make a function that detects and removes fluctuations.
             let variableValue = parseFloat(columns[variableIndex]);
 
             let color = currentPhase === 'minimization' ? minimizationColor : heatingColor;
