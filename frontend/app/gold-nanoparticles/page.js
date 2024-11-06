@@ -33,8 +33,9 @@ export default function SurfactantForm() {
                 setError('Error fetching data');
             }
         };
-
-        fetchData();
+        if (visualId.includes('.')) {
+            fetchData();
+        }
     }, [visualId]);
 
     const handleSubmit = (e) => {
