@@ -16,6 +16,8 @@ mol new Au_{code}_WAT.bgf autobonds off
 # Load the LAMMPSTRJ trajectory
 mol addfile Au_{code}_WAT.visualization.lammpstrj type lammpstrj first 0 last -1 step 1 waitfor all
 
+mol delrep 0 top
+
 # Check if the molecule and trajectory are loaded correctly
 set mol_id [molinfo top]
 if {{ $mol_id == -1 }} {{
@@ -31,13 +33,22 @@ if {{ $num_frames == 0 }} {{
 
 puts "Molecule and trajectory loaded successfully."
 
-# Select atoms excluding water
-set sel [atomselect top "not resname WAT"]
+# Select and set up representations
+# Representation for UNL with CPK style
+set sel_unl [atomselect top "resname UNL"]
+$sel_unl set radius 0.2
+$sel_unl update
+mol representation CPK
+mol color Name
+mol selection "resname UNL"
+mol addrep top
 
-# Set up the representation for the selected atoms
+# Representation for RES with VDW style
+set sel_res [atomselect top "resname RES"]
+$sel_res update
 mol representation VDW
 mol color Name
-mol selection "not resname WAT"
+mol selection "resname RES"
 mol addrep top
 
 # Set up the display
@@ -50,7 +61,7 @@ display distance -2.0
 display height 3.0
 
 # Define variables for rotation
-set rotation_step [expr {{360 / ($num_frames / 10)}}] 
+set rotation_step [expr {{360 / ($num_frames / 20)}}] 
 set rotation_angle 0
 
 # Loop over trajectory frames and render each one as an image
