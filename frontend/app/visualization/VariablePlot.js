@@ -124,17 +124,23 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const visibleSteps = filteredSteps.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
     const visibleColors = filteredColors.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
 
-    const coords = visibleSteps.map((el, index) => [el, visibleVariableData[index]]);
+    // Use sliderValue to control which data points are visible based on the current step
+    const maxVisibleIndex = Math.floor((sliderValue / 100) * visibleSteps.length);
+    const visibleVariableDataSlice = visibleVariableData.slice(0, maxVisibleIndex);
+    const visibleStepsSlice = visibleSteps.slice(0, maxVisibleIndex);
+    const visibleColorsSlice = visibleColors.slice(0, maxVisibleIndex);
+
+    const coords = visibleStepsSlice.map((el, index) => [el, visibleVariableDataSlice[index]]);
     const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
     const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));
 
     const data = {
-        labels: visibleSteps,
+        labels: visibleStepsSlice,
         datasets: [
             {
                 label: `Step vs ${variableName}`,
-                data: visibleVariableData,
-                pointBackgroundColor: visibleColors,
+                data: visibleVariableDataSlice,
+                pointBackgroundColor: visibleColorsSlice,
                 borderColor: "rgba(0, 0, 0, 0.1)",
                 tension: 0.4,
                 order: 1,
