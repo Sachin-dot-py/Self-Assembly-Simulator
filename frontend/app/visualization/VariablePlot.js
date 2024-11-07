@@ -110,10 +110,12 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     // Filter data to remove outliers based on this threshold
     const filteredData = variableData.filter((value, index) => value >= lowerBound && value <= upperBound);
     const filteredSteps = steps.filter((_, index) => variableData[index] >= lowerBound && variableData[index] <= upperBound);
+    const filteredColors = colors.filter((_, index) => variableData[index] >= lowerBound && variableData[index] <= upperBound);
 
     // Use filtered data for plotting
     const visibleVariableData = filteredData.slice(0, sliderValue * filteredData.length / 100);
     const visibleSteps = filteredSteps.slice(0, sliderValue * filteredData.length / 100);
+    const visibleColors = filteredColors.slice(0, sliderValue * filteredColors.length / 100);
 
     const coords = visibleSteps.map((el, index) => [el, visibleVariableData[index]]);
     const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
