@@ -96,9 +96,21 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         setMaxSteps(steps.length);
     }, [steps]);
 
-    const visibleVariableData = variableData.slice(0, sliderValue * maxSteps / 100);
-    const visibleSteps = steps.slice(0, sliderValue * maxSteps / 100);
-    const visibleColors = colors.slice(0, sliderValue * maxSteps / 100);
+    // Calculate the mean and standard deviation
+    const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
+    const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
+
+    // Set a clipping threshold at mean ± 5 * stdDev (can adjust this factor if needed)
+    const lowerBound = mean - 5 * stdDev;
+    const upperBound = mean + 5 * stdDev;
+
+    // Filter data to remove outliers based on this threshold
+    const filteredData = variableData.filter((value, index) => value >= lowerBound && value <= upperBound);
+    const filteredSteps = steps.filter((_, index) => variableData[index] >= lowerBound && variableData[index] <= upperBound);
+
+    // Use filtered data for plotting
+    const visibleVariableData = filteredData.slice(0, sliderValue * filteredData.length / 100);
+    const visibleSteps = filteredSteps.slice(0, sliderValue * filteredData.length / 100);
 
     const coords = visibleSteps.map((el, index) => [el, visibleVariableData[index]]);
     const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
