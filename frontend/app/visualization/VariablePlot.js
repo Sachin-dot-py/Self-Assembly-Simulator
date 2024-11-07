@@ -96,6 +96,9 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         setMaxSteps(steps.length);
     }, [steps]);
 
+    steps = steps.filter((step, index) => !isNaN(step) && !isNaN(variableData[index]));
+    variableData = variableData.filter((value, index) => !isNaN(value) && !isNaN(steps[index]));
+
     // Calculate the mean and standard deviation
     const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
     const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
