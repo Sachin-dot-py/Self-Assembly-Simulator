@@ -103,9 +103,9 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
     const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
 
-    // Set a clipping threshold at mean ± 3 * stdDev (can adjust this factor if needed)
-    const lowerBound = mean - 3 * stdDev;
-    const upperBound = mean + 3 * stdDev;
+    // Set a clipping threshold at mean ± 1 * stdDev (can adjust this factor if needed)
+    const lowerBound = mean - 1 * stdDev;
+    const upperBound = mean + 1 * stdDev;
 
     // Filter data to remove outliers based on this threshold
     const filteredData = variableData.filter((value, index) => value >= lowerBound && value <= upperBound);
