@@ -99,22 +99,31 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     steps = steps.filter((step, index) => !isNaN(step) && !isNaN(variableData[index]));
     variableData = variableData.filter((value, index) => !isNaN(value) && !isNaN(steps[index]));
 
-    // Calculate the mean and standard deviation
-    const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
-    const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
+    // Remove outliers iteratively to determine a more stable mean
+    const removeOutliers = (data) => {
+        let filteredData = [...data];
+        let mean, stdDev;
+        let previousLength;
 
-    // Set a clipping threshold at mean ± 1 * stdDev (can adjust this factor if needed)
-    const lowerBound = mean - 1 * stdDev;
-    const upperBound = mean + 1 * stdDev;
+        do {
+            previousLength = filteredData.length;
+            mean = filteredData.reduce((acc, val) => acc + val, 0) / filteredData.length;
+            stdDev = Math.sqrt(filteredData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / filteredData.length);
+            filteredData = filteredData.filter(value => value >= (mean - 2 * stdDev) && value <= (mean + 2 * stdDev));
+        } while (filteredData.length < previousLength);
 
-    // Filter data to remove outliers based on this threshold
-    const filteredData = variableData.filter((value, index) => value >= lowerBound && value <= upperBound);
-    const filteredSteps = steps.filter((_, index) => variableData[index] >= lowerBound && variableData[index] <= upperBound);
-    const filteredColors = colors.filter((_, index) => variableData[index] >= lowerBound && variableData[index] <= upperBound);
+        return filteredData;
+    };
+
+    // Filter outliers
+    const filteredVariableData = removeOutliers(variableData);
+    const filteredIndices = variableData.map((value, index) => filteredVariableData.includes(value) ? index : -1).filter(index => index !== -1);
+    const filteredSteps = filteredIndices.map(index => steps[index]);
+    const filteredColors = filteredIndices.map(index => colors[index]);
 
     // Use filtered data for plotting
-    const visibleVariableData = filteredData.slice(0, sliderValue * filteredData.length / 100);
-    const visibleSteps = filteredSteps.slice(0, sliderValue * filteredData.length / 100);
+    const visibleVariableData = filteredVariableData.slice(0, sliderValue * filteredVariableData.length / 100);
+    const visibleSteps = filteredSteps.slice(0, sliderValue * filteredSteps.length / 100);
     const visibleColors = filteredColors.slice(0, sliderValue * filteredColors.length / 100);
 
     const coords = visibleSteps.map((el, index) => [el, visibleVariableData[index]]);
