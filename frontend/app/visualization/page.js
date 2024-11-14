@@ -107,14 +107,20 @@ export default function Page() {
                     <Col className={styles.textCol}>
                         <div className={styles.explanationText}>
                             <h4>Explanation Text</h4>
-                            <div>Elements:</div>
-                            <ul>
-                                {elements.map(element => (
-                                    <li key={element}>
-                                        {element} ({ELEMENT_COLORS[element] || 'Unknown Color'})
-                                    </li>
-                                ))}
-                            </ul>
+                            <div className={styles.legendContainer}>
+                                <h5 className={styles.legendTitle}>Ion Color Legend</h5>
+                                <div className={styles.legendGrid}>
+                                    {elements.map(element => (
+                                        <div key={element} className={styles.legendItem}>
+                                            <div
+                                                className={styles.colorBox}
+                                                style={{ backgroundColor: ELEMENT_COLORS[element] || 'grey' }}
+                                            ></div>
+                                            <span className={styles.legendText}>{element} ({ELEMENT_COLORS[element] || 'Unknown Color'})</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </Col>
                 </Row>

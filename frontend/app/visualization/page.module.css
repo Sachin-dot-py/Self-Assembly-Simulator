@@ -35,3 +35,36 @@
     text-align: center;
     color: #495057;
 }
+
+.legendContainer {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+.legendTitle {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.legendGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+.legendItem {
+    display: flex;
+    align-items: center;
+}
+.colorBox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+}
+.legendText {
+    font-size: 1em;
+    color: #333;
+}
