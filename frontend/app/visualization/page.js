@@ -81,7 +81,7 @@ export default function Page() {
                 topologyLines.forEach(line => {
                     const tokens = line.split(/\s+/);
                     if (tokens[0] === 'HETATM' && tokens.length > 9) {
-                        const element = tokens[9];
+                        let element = tokens[9];
                         // Remove anything after an underscore, including the underscore itself
                         element = element.split('_')[0];
                         uniqueElements.add(element);
