@@ -80,8 +80,8 @@ export default function Page() {
 
                 topologyLines.forEach(line => {
                     const tokens = line.split(/\s+/);
-                    if (tokens[0] === 'HETATM' && tokens.length > 10) {
-                        const element = tokens[10];
+                    if (tokens[0] === 'HETATM' && tokens.length > 9) {
+                        const element = tokens[9];
                         uniqueElements.add(element);
                     }
                 });
