@@ -46,7 +46,7 @@ export default function EditorPage() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <FaAtom style={{ marginRight: '0.5rem', color: '#00d1b2' }} />
-                  <span>2. Use the "PT" button on the right toolbar to select elements from the periodic table.</span>
+                  <span>2. Use the &quot;PT&quot; button on the right toolbar to select elements from the periodic table.</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <FaAtom style={{ marginRight: '0.5rem', color: '#00d1b2' }} />
