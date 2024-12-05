@@ -4,6 +4,7 @@ import styles from "./page.module.css";
 import Navigation from './components/Navigation';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import { Link } from 'react-router-dom';
 import Image from 'next/image';
 import { FaPlay, FaInfoCircle } from 'react-icons/fa';
 
@@ -17,9 +18,11 @@ export default function Home() {
                     <div className={styles.heroContent}>
                         <h1>Welcome to the Self-Assembly Simulator</h1>
                         <p>Learn how nanoparticles form structures through self-assembly through interactive simulations.</p>
-                        <Button variant="primary" className={styles.exploreButton}>
-                            <FaPlay style={{ marginRight: '0.5rem' }} /> Get Started
-                        </Button>
+                        <Link to="/ionic-bonding">
+                            <Button variant="primary" className={styles.exploreButton}>
+                                <FaPlay style={{ marginRight: '0.5rem' }} /> Get Started
+                            </Button>
+                        </Link>
                     </div>
                     <div className={styles.heroImage}>
                         <Image src="/static/nano2.png" alt="Self-Assembly Visualization" width={400} height={300} />
@@ -34,7 +37,9 @@ export default function Home() {
                                 <Card.Text>
                                     Use our interactive editor to draw chemical structures and simulate their self-assembly process.
                                 </Card.Text>
-                                <Button variant="outline-primary">Get Started</Button>
+                                <Link to="/ionic-bonding">
+                                    <Button variant="outline-primary">Get Started</Button>
+                                </Link>
                             </Card.Body>
                         </Card>
                         <Card className={styles.featureCard}>
@@ -43,7 +48,9 @@ export default function Home() {
                                 <Card.Text>
                                     Visualize the self-assembly of gold nanoparticles with our interactive simulation tool.
                                 </Card.Text>
-                                <Button variant="outline-primary">View Demo</Button>
+                                <Link to="/gold-nanoparticles">
+                                    <Button variant="outline-primary">View Demo</Button>
+                                </Link>
                             </Card.Body>
                         </Card>
                         <Card className={styles.featureCard}>
