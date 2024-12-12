@@ -6,9 +6,13 @@ export default function VideoSync({ visualId, progress }) {
 
     useEffect(() => {
         if (vidRef.current) {
+            try{
             const duration = vidRef.current.duration;
-
             vidRef.current.currentTime = (progress / 100) * duration;
+            } catch (e) {
+                vidRef.current.currentTime = 0;
+            }
+            
         }
     }, [progress]);
 
