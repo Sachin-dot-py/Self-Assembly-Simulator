@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Form, Button, Container } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
 import VideoVisual from '../components/VideoVisual';
+import VideoSync from '../components/VideoSync';
 import VariablePlot from '../visualization/VariablePlot';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -204,10 +205,10 @@ export default function SurfactantForm() {
                     </Row>
                     <Row>
                         <Col className={styles.visualizationCol}>
-                            <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
+                            <VideoSync visualId={visualId} progress={sliderValue} display={"barplot"} />
                         </Col>
                         <Col className={styles.visualizationCol}>
-                            <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
+                            <VideoSync visualId={visualId} progress={sliderValue} display={"clusters"} />
                         </Col>
                     </Row>
                     <Row>
