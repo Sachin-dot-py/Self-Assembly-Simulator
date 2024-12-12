@@ -283,12 +283,29 @@ class GoldNanoparticleVideoFileHandler(Resource):
 
         # Send the video file to the frontend
         return send_file(video_file, mimetype='video/mp4')
+    
+class GoldNanoparticlePlotsFileHandler(Resource):
+    def get(self, display, surfactant, ratio):
+        # Directory path for the requested surfactant and ratio
+        base_dir = os.path.join('temp', 'gold-nanoparticles', f'Au_{surfactant}_WAT', ratio)
+
+        # Define the path for the video file
+        video_file = os.path.join(base_dir, f'{display}.mp4')
+        video_file = os.path.join(base_dir, 'visualization.mp4') # For testing purposes (TODO: Remove this line)
+
+        # Check if the video file exists
+        if not os.path.exists(video_file):
+            return {"error": "Video file not found"}, 404
+
+        # Send the video file to the frontend
+        return send_file(video_file, mimetype='video/mp4')
 
 api.add_resource(HelloWorld, '/api/')
 api.add_resource(VisualFileHandler, '/api/getfiles/<string:visualId>')
 api.add_resource(VideoFileHandler, '/api/getvideo/<string:visualId>')
 api.add_resource(GoldNanoparticleVisualFileHandler, '/api/getfiles/<string:surfactant>/<string:ratio>')
 api.add_resource(GoldNanoparticleVideoFileHandler, '/api/getvideo/<string:surfactant>/<string:ratio>')
+api.add_resource(GoldNanoparticlePlotsFileHandler, '/api/getvideo/<string:display>/<string:surfactant>/<string:ratio>')
 api.add_resource(Visualize, '/api/visualize')
 api.add_resource(VisualizationStatus, '/api/status/<string:visualId>')
 
