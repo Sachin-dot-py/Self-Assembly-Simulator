@@ -203,6 +203,14 @@ export default function SurfactantForm() {
                         </Col>
                     </Row>
                     <Row>
+                        <Col className={styles.visualizationCol}>
+                            <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
+                        </Col>
+                        <Col className={styles.visualizationCol}>
+                            <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
+                        </Col>
+                    </Row>
+                    <Row>
                         <Col className={styles.plotCol}>
                             <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
                         </Col>
