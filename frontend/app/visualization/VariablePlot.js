@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Chart from 'chart.js/auto';
-import { Line } from "react-chartjs-2";
+import { Line } from 'react-chartjs-2';
 import regression from 'regression';
+import { Form, Container, Row, Col } from 'react-bootstrap';
 
 const options = (variableName, variableUnit) => ({
     plugins: {
@@ -13,8 +14,8 @@ const options = (variableName, variableUnit) => ({
             },
             padding: {
                 top: 10,
-                bottom: 30
-            }
+                bottom: 30,
+            },
         },
         legend: {
             display: true,
@@ -28,8 +29,8 @@ const options = (variableName, variableUnit) => ({
                 text: 'Step',
                 font: {
                     size: 14,
-                }
-            }
+                },
+            },
         },
         y: {
             title: {
@@ -37,15 +38,16 @@ const options = (variableName, variableUnit) => ({
                 text: `${variableName} (${variableUnit})`,
                 font: {
                     size: 14,
-                }
-            }
-        }
+                },
+            },
+        },
     },
     responsive: true,
     animation: false,
 });
 
 export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit }) {
+    const [isSmooth, setIsSmooth] = useState(true); // Toggle State
     const [maxSteps, setMaxSteps] = useState(100);
 
     const minimizationColor = 'rgba(54, 162, 235, 1)';
@@ -59,29 +61,28 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         let insideData = false;
         let currentPhase = 'minimization';
 
-        // Process the log data
-        log.split('\n').forEach(line => {
-            if (line.includes("500 steps CG Minimization")) {
+        log.split('\n').forEach((line) => {
+            if (line.includes('500 steps CG Minimization')) {
                 currentPhase = 'minimization';
-            } else if (line.includes("NVT dynamics to heat system")) {
+            } else if (line.includes('NVT dynamics to heat system')) {
                 currentPhase = 'heating';
             }
 
-            if (line.includes("Step")) {
+            if (line.includes('Step')) {
                 insideData = true;
                 return;
             }
-            if (insideData && (line.includes("SHAKE") || line.includes("Bond"))) {
+            if (insideData && (line.includes('SHAKE') || line.includes('Bond'))) {
                 return;
             }
-            if (insideData && line.includes("Loop time of")) {
+            if (insideData && line.includes('Loop time of')) {
                 insideData = false;
                 return;
             }
             if (insideData) {
                 let columns = line.trim().split(/\s+/);
                 let step = parseInt(columns[0]);
-                if (step <= 2500) return;  // TODO: Make a function that detects and removes fluctuations.
+                if (step <= 2500) return;
                 let variableValue = parseFloat(columns[variableIndex]);
 
                 let color = currentPhase === 'minimization' ? minimizationColor : heatingColor;
@@ -99,17 +100,41 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         setMaxSteps(steps.length);
     }, [steps]);
 
-    // Filtering NaN values
-    const filteredData = steps.reduce((acc, step, index) => {
-        if (!isNaN(step) && !isNaN(variableData[index])) {
-            acc.steps.push(step);
-            acc.variableData.push(variableData[index]);
-            acc.colors.push(colors[index]);
-        }
-        return acc;
-    }, { steps: [], variableData: [], colors: [] });
+    // Gaussian Smoothing Function
+    const gaussianSmooth = (data, sigma = 2) => {
+        const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
+        const kernel = Array.from({ length: kernelSize }, (_, i) => {
+            const x = i - Math.floor(kernelSize / 2);
+            return Math.exp(-(x * x) / (2 * sigma * sigma));
+        });
+        const kernelSum = kernel.reduce((a, b) => a + b, 0);
 
-    const { steps: filteredSteps, variableData: filteredVariableData, colors: filteredColors } = filteredData;
+        const smoothed = data.map((_, i) => {
+            let weightedSum = 0;
+            for (let j = 0; j < kernelSize; j++) {
+                const idx = i + j - Math.floor(kernelSize / 2);
+                if (idx >= 0 && idx < data.length) {
+                    weightedSum += data[idx] * kernel[j];
+                }
+            }
+            return weightedSum / kernelSum;
+        });
+        return smoothed;
+    };
+
+    const smoothData = isSmooth ? gaussianSmooth(variableData) : variableData;
+
+    const filteredData = steps.reduce(
+        (acc, step, index) => {
+            if (!isNaN(step) && !isNaN(smoothData[index])) {
+                acc.steps.push(step);
+                acc.variableData.push(smoothData[index]);
+                acc.colors.push(colors[index]);
+            }
+            return acc;
+        },
+        { steps: [], variableData: [], colors: [] }
+    );
 
     // Calculate the mean and standard deviation
     const mean = filteredVariableData.reduce((acc, val) => acc + val, 0) / filteredVariableData.length;
@@ -120,28 +145,29 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const upperBound = mean + 2 * stdDev;
 
     // Filter data to remove outliers based on this threshold
-    const visibleVariableData = filteredVariableData.filter((value, index) => value >= lowerBound && value <= upperBound);
-    const visibleSteps = filteredSteps.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
-    const visibleColors = filteredColors.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
+    filteredVariableData = filteredVariableData.filter((value, index) => value >= lowerBound && value <= upperBound);
+    filteredSteps = filteredSteps.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
+    filteredColors = filteredColors.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
 
-    // Use sliderValue to control which data points are visible based on the current step
-    const maxVisibleIndex = Math.floor((sliderValue / 100) * visibleSteps.length);
-    const visibleVariableDataSlice = visibleVariableData.slice(0, maxVisibleIndex);
-    const visibleStepsSlice = visibleSteps.slice(0, maxVisibleIndex);
-    const visibleColorsSlice = visibleColors.slice(0, maxVisibleIndex);
+    const { steps: filteredSteps, variableData: filteredVariableData, colors: filteredColors } = filteredData;
 
+    const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredSteps.length);
+    const visibleVariableDataSlice = filteredVariableData.slice(0, maxVisibleIndex);
+    const visibleStepsSlice = filteredSteps.slice(0, maxVisibleIndex);
+    const visibleColorsSlice = filteredColors.slice(0, maxVisibleIndex);
+    
     const coords = visibleStepsSlice.map((el, index) => [el, visibleVariableDataSlice[index]]);
     const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
-    const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));
+    const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));    
 
     const data = {
         labels: visibleStepsSlice,
         datasets: [
             {
-                label: `Step vs ${variableName}`,
+                label: `Step vs ${variableName} (${isSmooth ? 'Smooth' : 'Raw'})`,
                 data: visibleVariableDataSlice,
                 pointBackgroundColor: visibleColorsSlice,
-                borderColor: "rgba(0, 0, 0, 0.1)",
+                borderColor: 'rgba(0, 0, 0, 0.1)',
                 tension: 0.4,
                 order: 1,
             },
@@ -159,8 +185,25 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     };
 
     return (
-        <div style={{ height: '100%', width: '100%' }}>
-            <Line data={data} options={options(variableName, variableUnit)} />
-        </div>
+        <Container>
+            <Row className="mb-3">
+                <Col>
+                    <Form>
+                        <Form.Check
+                            type="switch"
+                            id="data-toggle"
+                            label={isSmooth ? 'Smooth Data' : 'Raw Data'}
+                            checked={isSmooth}
+                            onChange={() => setIsSmooth((prev) => !prev)}
+                        />
+                    </Form>
+                </Col>
+            </Row>
+            <Row>
+                <Col style={{ height: '100%', width: '100%' }}>
+                    <Line data={data} options={options(variableName, variableUnit)} />
+                </Col>
+            </Row>
+        </Container>
     );
 }
