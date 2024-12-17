@@ -99,7 +99,6 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         setMaxSteps(steps.length);
     }, [steps]);
 
-    // Gaussian Smoothing Function
     const gaussianSmooth = (data, sigma = 2) => {
         const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
         const kernel = Array.from({ length: kernelSize }, (_, i) => {
@@ -108,18 +107,24 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         });
         const kernelSum = kernel.reduce((a, b) => a + b, 0);
 
+        // Edge padding
+        const paddedData = [
+            ...Array(Math.floor(kernelSize / 2)).fill(data[0]), // Pad start with first data value
+            ...data,
+            ...Array(Math.floor(kernelSize / 2)).fill(data[data.length - 1]), // Pad end with last data value
+        ];
+    
         const smoothed = data.map((_, i) => {
             let weightedSum = 0;
             for (let j = 0; j < kernelSize; j++) {
-                const idx = i + j - Math.floor(kernelSize / 2);
-                if (idx >= 0 && idx < data.length) {
-                    weightedSum += data[idx] * kernel[j];
-                }
+                const idx = i + j; // Index in the padded data
+                weightedSum += paddedData[idx] * kernel[j];
             }
             return weightedSum / kernelSum;
         });
+    
         return smoothed;
-    };
+    };    
 
     const smoothData = isSmooth ? gaussianSmooth(variableData) : variableData;
 
