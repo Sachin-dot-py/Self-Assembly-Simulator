@@ -156,7 +156,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
 
     let filteredSteps = filteredData.steps;
     let filteredColors = filteredData.colors;
-    let filteredVariableData = smoothedVariableData;
+    let filteredVariableData = smoothData;
 
     const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredSteps.length);
     const visibleVariableDataSlice = filteredVariableData.slice(0, maxVisibleIndex);
