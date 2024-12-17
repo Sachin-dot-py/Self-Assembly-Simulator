@@ -53,7 +53,6 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const minimizationColor = 'rgba(54, 162, 235, 1)';
     const heatingColor = 'rgba(255, 99, 132, 1)';
 
-    // Wrap steps and variableData in useMemo to prevent re-initialization on every render
     const { steps, variableData, colors } = useMemo(() => {
         let steps = [];
         let variableData = [];
@@ -136,6 +135,8 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         { steps: [], variableData: [], colors: [] }
     );
 
+    let { steps: filteredSteps, variableData: filteredVariableData, colors: filteredColors } = filteredData;
+
     // Calculate the mean and standard deviation
     const mean = filteredVariableData.reduce((acc, val) => acc + val, 0) / filteredVariableData.length;
     const stdDev = Math.sqrt(filteredVariableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / filteredVariableData.length);
@@ -148,8 +149,6 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     filteredVariableData = filteredVariableData.filter((value, index) => value >= lowerBound && value <= upperBound);
     filteredSteps = filteredSteps.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
     filteredColors = filteredColors.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
-
-    const { steps: filteredSteps, variableData: filteredVariableData, colors: filteredColors } = filteredData;
 
     const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredSteps.length);
     const visibleVariableDataSlice = filteredVariableData.slice(0, maxVisibleIndex);
