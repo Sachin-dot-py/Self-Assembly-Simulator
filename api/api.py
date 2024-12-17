@@ -299,6 +299,9 @@ class GoldNanoparticlePlotsFileHandler(Resource):
 
         # Define the path for the video file
         video_file = os.path.join(base_dir, f'{display}.mp4')
+        
+        # TODO - only for testing
+        video_file = os.path.join(base_dir, f'visualization.mp4')
 
         # Check if the video file exists
         if not os.path.exists(video_file):

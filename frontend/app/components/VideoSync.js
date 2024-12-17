@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 
 
-export default function VideoSync({ visualId, progress }) {
+export default function VideoSync({ visualId, progress, display }) {
     const vidRef = useRef(null);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export default function VideoSync({ visualId, progress }) {
                 width="100%" 
                 controls={false}
             >
-                <source src={`/api/getvideo/${visualId}`} type="video/mp4" />
+                <source src={`/api/getvideo/${display}/${visualId}`} type="video/mp4" />
             </video>
         </>
     );
