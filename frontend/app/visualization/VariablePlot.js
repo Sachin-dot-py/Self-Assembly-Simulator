@@ -54,7 +54,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const heatingColor = 'rgba(255, 99, 132, 1)';
 
     const { steps, variableData, colors } = useMemo(() => {
-        let variableIndex = 0;
+        let index = 0;
         let steps = [];
         let variableData = [];
         let colors = [];
@@ -88,12 +88,12 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 let color = currentPhase === 'minimization' ? minimizationColor : heatingColor;
                 
                 // Downsample to every 10th step (for smoothing)
-                if (variableIndex % 10 === 0) {
+                if (index % 10 === 0) {
                     steps.push(step);
                     variableData.push(variableValue);
                     colors.push(color);
                 }
-                variableIndex++;
+                index++;
             }
         });
 
