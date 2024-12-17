@@ -154,7 +154,9 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         ? gaussianSmooth(filteredData.variableData)
         : filteredData.variableData;
 
-    let { steps: filteredSteps, variableData: filteredVariableData, colors: filteredColors } = smoothData;
+    let filteredSteps = filteredData.steps;
+    let filteredColors = filteredData.colors;
+    let filteredVariableData = smoothedVariableData;
 
     const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredSteps.length);
     const visibleVariableDataSlice = filteredVariableData.slice(0, maxVisibleIndex);
