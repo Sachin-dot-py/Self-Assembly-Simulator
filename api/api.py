@@ -256,6 +256,7 @@ class GoldNanoparticleVisualFileHandler(Resource):
         bgf_file = os.path.join(base_dir, f'Au_{surfactant}_WAT.bgf')
         traj_file = os.path.join(base_dir, f'Au_{surfactant}_WAT.visualization.lammpstrj')
         log_file = os.path.join(base_dir, f'Au_{surfactant}_WAT.298K.equil.lammps.log')
+        explanation_file = os.path.join(base_dir, 'explanation.txt')
 
         # Ensure that all files exist
         if not all([os.path.exists(bgf_file), os.path.exists(traj_file), os.path.exists(log_file)]):
@@ -265,8 +266,15 @@ class GoldNanoparticleVisualFileHandler(Resource):
         with open(log_file, 'r') as f:
             log_content = f.read()
 
+        if os.path.exists(explanation_file):
+            with open(explanation_file, 'r') as f:
+                explanation_text = f.read()
+        else:
+            explanation_text = ""
+
         return jsonify({
-            'log': log_content
+            'log': log_content,
+            'explanationText': explanation_text
         })
 
 class GoldNanoparticleVideoFileHandler(Resource):
@@ -291,7 +299,6 @@ class GoldNanoparticlePlotsFileHandler(Resource):
 
         # Define the path for the video file
         video_file = os.path.join(base_dir, f'{display}.mp4')
-        video_file = os.path.join(base_dir, 'visualization.mp4') # For testing purposes (TODO: Remove this line)
 
         # Check if the video file exists
         if not os.path.exists(video_file):

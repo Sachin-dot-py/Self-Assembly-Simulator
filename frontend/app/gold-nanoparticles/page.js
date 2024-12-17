@@ -16,6 +16,7 @@ export default function SurfactantForm() {
     const [showVisualization, setShowVisualization] = useState(false);
     const [sliderValue, setSliderValue] = useState(0);
     const [log, setLog] = useState('');
+    const [explanationText, setExplanationText] = useState('');
     const [error, setError] = useState(null);
 
     const visualId = `${surfactant}/${ratio}`;
@@ -29,6 +30,7 @@ export default function SurfactantForm() {
                 }
                 const data = await response.json();
                 setLog(data.log);
+                setExplanationText(data.explanationText);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setError('Error fetching data');
@@ -198,8 +200,9 @@ export default function SurfactantForm() {
                         </Col>
                         <Col className={styles.textCol}>
                             <div className={styles.explanationText}>
-                                Explanation for Surfactant: {surfactant} <br />
-                                Ratio: {ratio}
+                                Surfactant: {surfactant} <br />
+                                Ratio: {ratio} <br />
+                                {explanationText}
                             </div>
                         </Col>
                     </Row>
