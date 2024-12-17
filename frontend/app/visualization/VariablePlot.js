@@ -88,7 +88,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 let color = currentPhase === 'minimization' ? minimizationColor : heatingColor;
                 
                 // Downsample to every 10th step (for smoothing)
-                if (index % 10 === 0) {
+                if (!isNaN(step) && !isNaN(variableValue) && index % 10 === 0) {
                     steps.push(step);
                     variableData.push(variableValue);
                     colors.push(color);
@@ -129,15 +129,19 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         });
     
         return smoothed;
-    };    
+    };
 
-    const smoothData = isSmooth ? gaussianSmooth(variableData) : variableData;
+    // Remove outliers
+    const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
+    const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
+    const lowerBound = mean - 2 * stdDev;
+    const upperBound = mean + 2 * stdDev;
 
     const filteredData = steps.reduce(
         (acc, step, index) => {
-            if (!isNaN(step) && !isNaN(smoothData[index])) {
+            if (variableData[index] >= lowerBound && variableData[index] <= upperBound) {
                 acc.steps.push(step);
-                acc.variableData.push(smoothData[index]);
+                acc.variableData.push(variableData[index]);
                 acc.colors.push(colors[index]);
             }
             return acc;
@@ -145,20 +149,12 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         { steps: [], variableData: [], colors: [] }
     );
 
-    let { steps: filteredSteps, variableData: filteredVariableData, colors: filteredColors } = filteredData;
+    // Apply Gaussian smoothing if enabled
+    const smoothData = isSmooth
+        ? gaussianSmooth(filteredData.variableData)
+        : filteredData.variableData;
 
-    // Calculate the mean and standard deviation
-    const mean = filteredVariableData.reduce((acc, val) => acc + val, 0) / filteredVariableData.length;
-    const stdDev = Math.sqrt(filteredVariableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / filteredVariableData.length);
-
-    // Set a clipping threshold at mean ± 2 * stdDev (can adjust this factor if needed)
-    const lowerBound = mean - 2 * stdDev;
-    const upperBound = mean + 2 * stdDev;
-
-    // Filter data to remove outliers based on this threshold
-    filteredVariableData = filteredVariableData.filter((value, index) => value >= lowerBound && value <= upperBound);
-    filteredSteps = filteredSteps.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
-    filteredColors = filteredColors.filter((_, index) => filteredVariableData[index] >= lowerBound && filteredVariableData[index] <= upperBound);
+    let { steps: filteredSteps, variableData: filteredVariableData, colors: filteredColors } = smoothData;
 
     const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredSteps.length);
     const visibleVariableDataSlice = filteredVariableData.slice(0, maxVisibleIndex);
