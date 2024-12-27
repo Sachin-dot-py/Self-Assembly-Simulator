@@ -28,17 +28,15 @@ mol addrep top
 display resetview
 display resize 620 400
 
-# Define variables for rotation
-set rotation_step [expr {360 / ($num_frames / 250)}] ;# Rotate 360 degrees over the trajectory
-set rotation_angle 0  ;# Start from 0 degrees
+display set rotation_matrix {
+    1.0  0.0  0.0
+    0.0  1.0  0.0
+    0.0  0.0  1.0
+}
 
 # Loop over trajectory frames and render each one as an image
 for {set i 0} {$i < $num_frames} {incr i 100} {
     animate goto $i
-
-    # Rotate the camera
-    rotate y by $rotation_step
-    incr rotation_angle $rotation_step
 
     # Render each frame to a TGA file (make the filenames sequential)
     set new_index [expr {$i / 100}]

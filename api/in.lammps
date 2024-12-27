@@ -33,27 +33,27 @@ print                ==========================================
 print                .
 
 thermo_style         custom step temp press pe ke etotal evdwl ecoul epair ebond eangle edihed eimp emol elong etail enthalpy ecouple econserve vol density
-dump                 1 all custom 10 ${sname}.visualize.lammpstrj id type xu yu zu vx vy vz
-thermo               10
+dump                 1 all custom 1 ${sname}.visualize.lammpstrj id type xu yu zu vx vy vz
+thermo               1
 min_style            sd
-minimize             0 1.0e-6 5000 50000
+minimize             0 0 5000 50000
+minimize             0 0 5000 50000
 min_style            cg
-minimize             0 1.0e-6 5000 50000
-#now                 minimize the entire system
-minimize             0 1.0e-6 5000 50000
+minimize             0 0 5000 50000
+minimize             0 0 5000 50000
                      
                      
-print                .
-print                =====================================
-print                "NVT dynamics to heat system"
-print                =====================================
-print                .
+#print                .
+#print                =====================================
+#print                "NVT dynamics to heat system"
+#print                =====================================
+#print                .
                                           
-velocity             all create 0.0 12345678 dist uniform
-fix                  4 all nvt temp 1.0 ${rtemp} 100.0
-run                  50000
-unfix                4
-fix                  4 all nvt temp ${rtemp} ${rtemp} 100.0
-run                  150000
-unfix                4
-undump               1
+#velocity             all create 0.0 12345678 dist uniform
+#fix                  4 all nvt temp 1.0 ${rtemp} 100.0
+#run                  50000
+#unfix                4
+#fix                  4 all nvt temp ${rtemp} ${rtemp} 100.0
+#run                  150000
+#unfix                4
+#undump               1
