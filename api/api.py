@@ -163,8 +163,6 @@ class Visualize(Resource):
             # Step 1: Run Open Babel to convert .mol to .bgf format
             convert_mdl_to_bgf(os.path.join(visual_dir, 'input.mol'))
 
-            # TODO Will also add box dimensions prior to creating LAMMPS input
-
             # Step 2: Run the createLammpsInput.pl script with the .bgf file and merge generated in.lammps with template in.lammps
             create_lammps_input_command = ['/root/ATLAS-toolkit/scripts/createLammpsInput.pl', '-b', 'input.bgf', '-f', 'UFF']
             subprocess.run(create_lammps_input_command, cwd=visual_dir, check=True)
