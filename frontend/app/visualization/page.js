@@ -128,26 +128,10 @@ export default function Page() {
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="eV" />
                     </Col>
                     <Col className={styles.plotCol}>
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Coulomb Energy" variableUnit="eV" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="eV" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Potential Energy" variableUnit="eV" />
                     </Col>
                 </Row>
                 <Row>
