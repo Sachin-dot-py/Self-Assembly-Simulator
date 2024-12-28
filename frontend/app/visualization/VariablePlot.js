@@ -82,13 +82,12 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
             if (insideData) {
                 let columns = line.trim().split(/\s+/);
                 let step = parseInt(columns[0]);
-                if (step <= 2500) return;
+                // if (step <= 2500) return;
                 let variableValue = parseFloat(columns[variableIndex]);
 
                 let color = currentPhase === 'minimization' ? minimizationColor : heatingColor;
                 
-                // Downsample to every 10th step (for smoothing)
-                if (!isNaN(step) && !isNaN(variableValue) && index % 10 === 0) {
+                if (!isNaN(step) && !isNaN(variableValue)) {
                     steps.push(step);
                     variableData.push(variableValue);
                     colors.push(color);
