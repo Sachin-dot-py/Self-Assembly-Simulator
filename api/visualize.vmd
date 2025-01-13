@@ -27,12 +27,9 @@ mol addrep top
 # Set up the display
 display resetview
 display resize 620 400
-
-display set rotation_matrix {
-    1.0  0.0  0.0
-    0.0  1.0  0.0
-    0.0  0.0  1.0
-}
+display set antialias off
+display set shadows off
+display set ambientocclusion off
 
 # Loop over trajectory frames and render each one as an image
 for {set i 0} {$i < $num_frames} {incr i 1} {
