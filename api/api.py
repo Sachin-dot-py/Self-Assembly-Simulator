@@ -203,8 +203,20 @@ class Visualize(Resource):
             # Create the visualization
 
             # Step 1: Run VMD to generate individual frame files (.tga)
-            vmd_command = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize.vmd']
-            subprocess.run(vmd_command, cwd=visual_dir, check=True)
+
+            # Non-parallel version:
+            # vmd_command = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize.vmd']
+            # subprocess.run(vmd_command, cwd=visual_dir, check=True)
+
+            # Parallel version:
+            vmd_command_even = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize-even.vmd']
+            vmd_command_odd = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize-odd.vmd']
+
+            process_even = subprocess.Popen(vmd_command_even, cwd=visual_dir)
+            process_odd = subprocess.Popen(vmd_command_odd, cwd=visual_dir)
+
+            process_even.wait()
+            process_odd.wait()
 
             # Step 2: Combine .tga frames into a video using FFmpeg
             ffmpeg_command = ['/usr/bin/ffmpeg', '-framerate', '6', '-i', 'frame_%d.tga', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', 'visualization.mp4']
