@@ -30,6 +30,7 @@ display resize 620 400
 display set antialias off
 display set shadows off
 display set ambientocclusion off
+loglevel error
 
 # Loop over trajectory frames and render each one as an image
 for {set i 0} {$i < $num_frames} {incr i 1} {
