@@ -39,7 +39,7 @@ for {set i 0} {$i < $num_frames} {incr i 1} {
     animate goto $i
 
     # Render each frame to a TGA file (make the filenames sequential)
-    set new_index [expr {$i / 1}]
+    set new_index [expr {$i}]
     render snapshot frame_${new_index}.tga
 }
 
