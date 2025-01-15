@@ -35,7 +35,6 @@ export default function VideoVisualSync({ visualId, progress }) {
             ref={vidRef} 
             height="80%" 
             width="100%" 
-            controls
         >
             <source src={`/api/getvideo/${visualId}`} type="video/mp4" />
         </video>
