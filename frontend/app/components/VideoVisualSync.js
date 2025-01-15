@@ -3,6 +3,8 @@ import FormRange from 'react-bootstrap/FormRange';
 
 export default function VideoVisualSync({ visualId, progress }) {
     const vidRef = useRef(null);
+    const prevProgress = useRef(progress);
+    const progressChangeTimeout = useRef(null);
 
     useEffect(() => {
         const video = vidRef.current;
@@ -21,19 +23,61 @@ export default function VideoVisualSync({ visualId, progress }) {
             }
         };
 
+        const handlePlayback = (isChanging) => {
+            if (video) {
+                if (isChanging) {
+                    // Progress is changing
+                    if (video.paused) {
+                        video.play();
+                    }
+                } else {
+                    // Progress is not changing
+                    if (!video.paused) {
+                        video.pause();
+                    }
+                }
+            }
+        };
+
+        let isProgressChanging = false;
+
+        if (progress !== prevProgress.current) {
+            isProgressChanging = true;
+            // Clear existing timeout
+            if (progressChangeTimeout.current) {
+                clearTimeout(progressChangeTimeout.current);
+            }
+            // Set timeout to detect when progress stops changing
+            progressChangeTimeout.current = setTimeout(() => {
+                handlePlayback(false); // Progress has stopped changing
+            }, 300); // Adjust delay as needed
+        }
+
+        // Update currentTime
         if (video) {
             if (video.readyState >= 1) {
                 // Video metadata is ready
                 updateCurrentTime();
+                handlePlayback(isProgressChanging);
             } else {
                 // Wait for metadata to load
                 const handleLoadedMetadata = () => {
                     updateCurrentTime();
+                    handlePlayback(isProgressChanging);
                     video.removeEventListener('loadedmetadata', handleLoadedMetadata);
                 };
                 video.addEventListener('loadedmetadata', handleLoadedMetadata);
             }
         }
+        
+        prevProgress.current = progress;
+
+        // Clean up function
+        return () => {
+            if (progressChangeTimeout.current) {
+                clearTimeout(progressChangeTimeout.current);
+            }
+        };
     }, [progress]);
 
     return (
