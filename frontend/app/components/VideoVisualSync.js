@@ -1,4 +1,5 @@
-
+import React, { useRef, useEffect } from 'react';
+import FormRange from 'react-bootstrap/FormRange';
 
 export default function VideoVisualSync({ visualId, progress }) {
     const vidRef = useRef(null);
