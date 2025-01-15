@@ -1,5 +1,4 @@
-import React, { useRef, useEffect } from 'react';
-import FormRange from 'react-bootstrap/FormRange';
+
 
 export default function VideoVisualSync({ visualId, progress }) {
     const vidRef = useRef(null);
@@ -9,8 +8,15 @@ export default function VideoVisualSync({ visualId, progress }) {
 
         const updateCurrentTime = () => {
             if (video && video.duration) {
-                const updatedTime = (progress / 100) * video.duration;
-                video.currentTime = updatedTime;
+                const desiredTime = (progress / 100) * video.duration;
+                const currentTime = video.currentTime;
+                const timeDifference = Math.abs(currentTime - desiredTime);
+
+                const threshold = 0.1; // in seconds
+
+                if (timeDifference > threshold) {
+                    video.currentTime = desiredTime;
+                }
             }
         };
 
@@ -31,28 +37,28 @@ export default function VideoVisualSync({ visualId, progress }) {
 
     return (
         <>
-        <video 
-            ref={vidRef} 
-            height="80%" 
-            width="100%" 
-        >
-            <source src={`/api/getvideo/${visualId}`} type="video/mp4" />
-        </video>
+            <video 
+                ref={vidRef} 
+                height="80%" 
+                width="100%" 
+            >
+                <source src={`/api/getvideo/${visualId}`} type="video/mp4" />
+            </video>
 
-    <div>
-    <span style={{ textAlign: 'center' }}>Current Progress: {Math.round(progress)}%</span>
-    </div>
+            <div>
+                <span style={{ textAlign: 'center' }}>Current Progress: {Math.round(progress)}%</span>
+            </div>
 
-    <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-    <FormRange 
-        disabled
-        value={progress} 
-        min="0" 
-        max="100" 
-        step="1"
-        style={{ flexGrow: 1 }}
-    />
-    </div>
-    </>
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                <FormRange 
+                    disabled
+                    value={progress} 
+                    min="0" 
+                    max="100" 
+                    step="1"
+                    style={{ flexGrow: 1 }}
+                />
+            </div>
+        </>
     );
 }
