@@ -13,7 +13,7 @@ export default function VideoVisualSync({ visualId, progress }) {
                 const currentTime = video.currentTime;
                 const timeDifference = Math.abs(currentTime - desiredTime);
 
-                const threshold = 0.4; // in seconds
+                const threshold = 0.1; // in seconds
 
                 if (timeDifference > threshold) {
                     video.currentTime = desiredTime;
