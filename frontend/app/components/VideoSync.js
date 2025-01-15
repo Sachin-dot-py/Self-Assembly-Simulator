@@ -24,7 +24,8 @@ export default function VideoSync({ visualId, progress, display }) {
                 width="100%" 
                 controls={false}
             >
-                <source src={`/api/getplot/${display}/${visualId}`} type="video/mp4" />
+                { display === "video" ? <source src={`/api/getvideo/${visualId}`} type="video/mp4" /> : 
+                    <source src={`/api/getplot/${display}/${visualId}`} type="video/mp4" /> }
             </video>
         </>
     );
