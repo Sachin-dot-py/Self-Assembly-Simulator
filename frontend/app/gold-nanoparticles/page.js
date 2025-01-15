@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Form, Button, Container } from 'react-bootstrap';
+import { FaPlay } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import VideoVisual from '../components/VideoVisual';
 import VideoSync from '../components/VideoSync';
@@ -190,6 +191,16 @@ export default function SurfactantForm() {
                         Visualize
                     </Button>
                 </Form>
+                <center>
+                <Row className="justify-content-center" style={{ marginTop: '30px' }}>
+                <Col md="auto">
+                    <Button href="/gold-nanoparticles-compare" variant="success" size="lg">
+                        <FaPlay style={{ marginRight: '8px' }} />
+                        Compare Two Surfactants Side-by-Side
+                    </Button>
+                </Col>
+                </Row>
+                </center>
             </Container>
             {showVisualization && (
                 <Container className={styles.pageContainer}>

@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { Form, Button, Container } from 'react-bootstrap';
+import { FaPlay } from 'react-icons/fa';
 import Navigation from '../components/Navigation';
 import VideoVisual from '../components/VideoVisual';
+import VideoVisualSync from '../components/VideoVisualSync';
 import VideoSync from '../components/VideoSync';
 import VariablePlot from '../visualization/VariablePlot';
 import Row from 'react-bootstrap/Row';
@@ -339,6 +341,16 @@ export default function SurfactantForm() {
                         Visualize
                     </Button>
                 </Form>
+                <center>
+                <Row className="justify-content-center" style={{ marginTop: '30px' }}>
+                <Col md="auto">
+                    <Button href="/gold-nanoparticles" variant="success" size="lg">
+                        <FaPlay style={{ marginRight: '8px' }} />
+                        Single-Surfactant View
+                    </Button>
+                </Col>
+                </Row>
+                </center>
             </Container>
             {showVisualization && (
                 <Container className={styles.pageContainer}>
@@ -348,7 +360,8 @@ export default function SurfactantForm() {
                             <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
                         </Col>
                         <Col className={styles.visualizationCol}>
-                            <VideoSync visualId={visualId2} progress={sliderValue} display={"video"} />
+                            {/* <VideoSync visualId={visualId2} progress={sliderValue} display={"video"} /> */}
+                            <VideoVisualSync visualId={visualId2} progress={sliderValue} />
                         </Col>
                     </Row>
                     <Row>
