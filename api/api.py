@@ -240,7 +240,7 @@ class Visualize(Resource):
             # process_odd.wait()
 
             # Step 2: Combine .tga frames into a video using FFmpeg
-            ffmpeg_command = ['/usr/bin/ffmpeg', '-framerate', '6', '-i', 'frame_%d.tga', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', 'visualization.mp4']
+            ffmpeg_command = ['/usr/bin/ffmpeg', '-framerate', '7', '-i', 'frame_%d.tga', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', 'visualization.mp4']
             subprocess.run(ffmpeg_command, cwd=visual_dir, check=True)
 
             # Step 3: Remove all .tga files
