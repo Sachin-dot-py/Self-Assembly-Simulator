@@ -1,59 +1,138 @@
-units                real
-atom_style           full
-boundary             p p p
-dielectric           1
-special_bonds        lj/coul 0.0 0.0 1.0
-                     
-pair_style           lj/charmm/coul/charmm 13 14.00000
-bond_style           none
-angle_style          none
-dihedral_style       none
-improper_style       none
-kspace_style         none
-                     
-read_data            data.lammps
-                     
-                     
-                     
-pair_modify          mix geometric
-neighbor             2.0 multi
-neigh_modify         every 2 delay 4 check yes
-thermo_style         multi
-thermo_modify        line multi format float %14.6f flush yes
-variable             input string in.lammps
-variable             sname string lammps
-                     
-                     
-timestep             1
-                     
-print                .
-print                ==========================================
-print                "500 steps CG Minimization"
-print                ==========================================
-print                .
+units                real
+atom_style           full
+boundary             p p f
+dielectric           1
+special_bonds        lj/coul 0.0 0.0 1.0
+
+pair_style           lj/charmm/coul/long/opt 13 14.00000
+bond_style           none
+angle_style          none
+dihedral_style       none
+improper_style       none
+kspace_style         pppm 0.001
+kspace_modify        slab 2.0
+
+read_data            data.lammps
+
+pair_modify          mix geometric
+neighbor             2.0 multi
+neigh_modify         every 2 delay 4 check yes
+thermo_style         multi
+thermo_modify        line multi format float %14.6f flush yes
+variable             input string in.lammps
+variable             sname string lammps
+
+timestep             1
+
+change_box           all x scale 1.1 y scale 1.1 remap
+
+# Original box dimensions
+variable             lx equal lx             # Initial length in x-direction
+variable             ly equal ly             # Initial length in y-direction
+variable             area equal ${lx}*${ly}  # Compute the initial box area
+
+# Compute target lengths for a square box
+variable             target_lx equal sqrt(${area})
+variable             target_ly equal sqrt(${area})
+
+print                ${target_lx}
+print                ${target_ly}
+
+# Apply deformation
+fix                  deform_box all deform 1 x final 0 ${target_lx} y final 0 ${target_ly}
+
+# Enforce 2D
+fix                  zconfine all wall/harmonic zlo EDGE 10.0 1.0 2.5 zhi EDGE 10.0 1.0 2.5 units box
+fix                  mom all momentum 1 linear 1 1 1
+
+print                .
+print                ==========================================
+print                "500 steps CG Minimization"
+print                ==========================================
+print                .
 
 thermo_style         custom step temp press pe ke etotal evdwl ecoul epair ebond eangle edihed eimp emol elong etail enthalpy ecouple econserve vol density
-dump                 1 all custom 1 ${sname}.visualize.lammpstrj id type xu yu zu vx vy vz
-thermo               1
+dump                 1 all custom 5 ${sname}.minimization.lammpstrj id type xu yu zu vx vy vz
+thermo               5
 min_style            sd
 minimize             0 0 5000 50000
 minimize             0 0 5000 50000
 min_style            cg
 minimize             0 0 5000 50000
 minimize             0 0 5000 50000
-                     
-                     
-#print                .
-#print                =====================================
-#print                "NVT dynamics to heat system"
-#print                =====================================
-#print                .
-                                          
-#velocity             all create 0.0 12345678 dist uniform
-#fix                  4 all nvt temp 1.0 ${rtemp} 100.0
-#run                  50000
-#unfix                4
-#fix                  4 all nvt temp ${rtemp} ${rtemp} 100.0
-#run                  150000
-#unfix                4
-#undump               1
+undump               1
+
+print                .
+print                =====================================
+print                "NVT dynamics to heat system x1"
+print                =====================================
+print                .
+
+velocity             all create 0.0 12345678 dist uniform
+thermo               100
+fix                  3 all nvt temp 1.0 298.0 100.0
+dump                 1 all custom 100 ${sname}.heat1.lammpstrj id type xu yu zu vx vy vz
+run                  10000
+unfix                3
+unfix                deform_box
+undump               1
+
+print                .
+print                ================================================
+print                "NPT dynamics with an isotropic pressure of 1atm. x1"
+print                ================================================
+print                .
+
+fix                  2 all npt temp 298.0 298.0 100.0 x 1.0 1.0 500.0 y 1.0 1.0 500.0
+dump                 1 all custom 100 ${sname}.pressure1.lammpstrj id type xu yu zu vx vy vz
+run                  10000
+unfix                2
+undump               1
+
+print                .
+print                =====================================
+print                "NVT dynamics to heat system x2"
+print                =====================================
+print                .
+
+fix                  3 all nvt temp 298.0 1000.0 100.0
+dump                 1 all custom 100 ${sname}.heat2.lammpstrj id type xu yu zu vx vy vz
+run                  10000
+unfix                3
+undump               1
+
+print                .
+print                ================================================
+print                "NPT dynamics with an isotropic pressure of 1atm. x2"
+print                ================================================
+print                .
+
+fix                  2 all npt temp 1000.0 1000.0 100.0 x 1.0 1.0 500.0 y 1.0 1.0 500.0
+dump                 1 all custom 100 ${sname}.pressure2.lammpstrj id type xu yu zu vx vy vz
+run                  10000
+unfix                2
+undump               1
+
+print                .
+print                =====================================
+print                "NVT dynamics to heat system x3"
+print                =====================================
+print                .
+
+fix                  3 all nvt temp 1000.0 298.0 100.0
+dump                 1 all custom 100 ${sname}.cool.lammpstrj id type xu yu zu vx vy vz
+run                  10000
+unfix                3
+undump               1
+
+print                .
+print                =====================================
+print                "NVT dynamics for equilibration"
+print                =====================================
+print                .
+
+fix                  3 all nvt temp 298.0 298.0 100.0
+dump                 1 all custom 100 ${sname}.equilibrate.lammpstrj id type xu yu zu vx vy vz
+run                  10000
+unfix                3
+undump               1

@@ -198,7 +198,27 @@ class Visualize(Resource):
             subprocess.run(lammps_command, cwd=visual_dir, check=True)
 
             # Step 5: Rename lammps.visualize.lammpstrj to master.lammpstrj
-            os.rename(os.path.join(visual_dir, 'lammps.visualize.lammpstrj'), os.path.join(visual_dir, 'master.lammpstrj'))
+            # os.rename(os.path.join(visual_dir, 'lammps.visualize.lammpstrj'), os.path.join(visual_dir, 'master.lammpstrj'))
+
+            # Step 5: Merge all the trajectory files into a single file
+            files_to_merge = [
+                "lammps.minimization.lammpstrj",
+                "lammps.heat1.lammpstrj",
+                "lammps.pressure1.lammpstrj",
+                "lammps.heat2.lammpstrj",
+                "lammps.pressure2.lammpstrj",
+                "lammps.cool.lammpstrj",
+                "lammps.equilibrate.lammpstrj",
+            ]
+            output_file = os.path.join(visual_dir, "master.lammpstrj")
+
+            # Open the output file in write mode
+            with open(output_file, "w") as master_file:
+                for traj_file in files_to_merge:
+                    file_path = os.path.join(visual_dir, traj_file)
+                    if os.path.exists(file_path):
+                        with open(file_path, "r") as single_file:
+                            master_file.write(single_file.read())
 
             # Create the visualization
 

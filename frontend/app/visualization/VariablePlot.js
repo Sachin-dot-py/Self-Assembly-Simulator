@@ -50,20 +50,57 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const [isSmooth, setIsSmooth] = useState(true); // Toggle State
     const [maxSteps, setMaxSteps] = useState(100);
 
-    const minimizationColor = 'rgba(54, 162, 235, 1)';
-    const heatingColor = 'rgba(255, 99, 132, 1)';
+    // Define colors and labels for each phase
+    const phaseColors = {
+        minimization: 'rgba(54, 162, 235, 1)',
+        heating_1: 'rgba(255, 99, 132, 1)',
+        pressure_equilibration_1: 'rgba(75, 192, 192, 1)',
+        heating_2: 'rgba(255, 159, 64, 1)',
+        pressure_equilibration_2: 'rgba(153, 102, 255, 1)',
+        cooling: 'rgba(255, 206, 86, 1)',
+        final_equilibration: 'rgba(201, 203, 207, 1)',
+        heating: 'rgba(54, 235, 54, 1)',
+    };
 
-    const { steps, variableData, colors } = useMemo(() => {
-        let index = 0;
+    const phaseLabels = {
+        minimization: 'Algorithm minimization',
+        heating_1: 'Heat (constant V) to room temperature',
+        pressure_equilibration_1: 'Maintain (constant P) at room temperature',
+        heating_2: 'Heat/anneal (constant V) to 1000K',
+        pressure_equilibration_2: 'Maintain (constant P) at 1000K',
+        cooling: 'Cool (constant V) to room temperature',
+        final_equilibration: 'Equilibrate (constant V) at room temperature',
+        heating: 'Heating',
+    };
+
+    const { steps, variableData, colors, datasets } = useMemo(() => {
         let steps = [];
         let variableData = [];
         let colors = [];
+        let datasets = [];
         let insideData = false;
         let currentPhase = 'minimization';
+
+        const phaseData = Object.keys(phaseLabels).reduce((acc, phase) => {
+            acc[phase] = [];
+            return acc;
+        }, {});
 
         log.split('\n').forEach((line) => {
             if (line.includes('500 steps CG Minimization')) {
                 currentPhase = 'minimization';
+            } else if (line.includes('NVT dynamics to heat system x1')) {
+                currentPhase = 'heating_1';
+            } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm. x1')) {
+                currentPhase = 'pressure_equilibration_1';
+            } else if (line.includes('NVT dynamics to heat system x2')) {
+                currentPhase = 'heating_2';
+            } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm. x2')) {
+                currentPhase = 'pressure_equilibration_2';
+            } else if (line.includes('NVT dynamics to heat system x3')) {
+                currentPhase = 'cooling';
+            } else if (line.includes('NVT dynamics for equilibration')) {
+                currentPhase = 'final_equilibration';
             } else if (line.includes('NVT dynamics to heat system')) {
                 currentPhase = 'heating';
             }
@@ -82,27 +119,35 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
             if (insideData) {
                 let columns = line.trim().split(/\s+/);
                 let step = parseInt(columns[0]);
-                // if (step <= 2500) return;
                 let variableValue = parseFloat(columns[variableIndex]);
 
-                let color = currentPhase === 'minimization' ? minimizationColor : heatingColor;
-                
                 if (!isNaN(step) && !isNaN(variableValue)) {
                     steps.push(step);
                     variableData.push(variableValue);
-                    colors.push(color);
+                    colors.push(phaseColors[currentPhase]);
+                    phaseData[currentPhase].push({ x: step, y: variableValue });
                 }
-                index++;
             }
         });
 
-        return { steps, variableData, colors };
-    }, [log, variableIndex, minimizationColor, heatingColor]);
+        datasets = Object.keys(phaseData).map((phase) => ({
+            label: phaseLabels[phase],
+            data: phaseData[phase],
+            borderColor: phaseColors[phase],
+            backgroundColor: phaseColors[phase],
+            pointRadius: 0,
+            fill: false,
+            tension: 0.4,
+        }));
+
+        return { steps, variableData, colors, datasets };
+    }, [log, variableIndex, phaseColors, phaseLabels]);
 
     useEffect(() => {
         setMaxSteps(steps.length);
     }, [steps]);
 
+    // Apply Gaussian smoothing
     const gaussianSmooth = (data, sigma = 2) => {
         const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
         const kernel = Array.from({ length: kernelSize }, (_, i) => {
@@ -111,23 +156,15 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         });
         const kernelSum = kernel.reduce((a, b) => a + b, 0);
 
-        // Edge padding
         const paddedData = [
-            ...Array(Math.floor(kernelSize / 2)).fill(data[0]), // Pad start with first data value
+            ...Array(Math.floor(kernelSize / 2)).fill(data[0]),
             ...data,
-            ...Array(Math.floor(kernelSize / 2)).fill(data[data.length - 1]), // Pad end with last data value
+            ...Array(Math.floor(kernelSize / 2)).fill(data[data.length - 1]),
         ];
-    
-        const smoothed = data.map((_, i) => {
-            let weightedSum = 0;
-            for (let j = 0; j < kernelSize; j++) {
-                const idx = i + j; // Index in the padded data
-                weightedSum += paddedData[idx] * kernel[j];
-            }
-            return weightedSum / kernelSum;
+
+        return data.map((_, i) => {
+            return paddedData.slice(i, i + kernelSize).reduce((sum, val, idx) => sum + val * kernel[idx], 0) / kernelSum;
         });
-    
-        return smoothed;
     };
 
     // Remove outliers
@@ -161,33 +198,24 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const visibleVariableDataSlice = filteredVariableData.slice(0, maxVisibleIndex);
     const visibleStepsSlice = filteredSteps.slice(0, maxVisibleIndex);
     const visibleColorsSlice = filteredColors.slice(0, maxVisibleIndex);
-    
+
     const coords = visibleStepsSlice.map((el, index) => [el, visibleVariableDataSlice[index]]);
     const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
     const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));    
 
+    datasets.push({
+        label: "Polynomial Fit",
+        data: polynomialFitData,
+        borderColor: "rgba(64, 64, 64, 1)",
+        borderDash: [5, 5],
+        fill: false,
+        pointRadius: 0,
+        tension: 0.4,
+    });
+
     const data = {
         labels: visibleStepsSlice,
-        datasets: [
-            {
-                label: `Step vs ${variableName} (${isSmooth ? 'Smooth' : 'Raw'})`,
-                data: visibleVariableDataSlice,
-                pointBackgroundColor: visibleColorsSlice,
-                borderColor: 'rgba(0, 0, 0, 0.1)',
-                tension: 0.4,
-                order: 1,
-            },
-            {
-                label: "Polynomial Fit",
-                data: polynomialFitData.map(point => point.y),
-                borderColor: "rgba(64, 64, 64, 1)",
-                borderDash: [5, 5],
-                fill: false,
-                pointRadius: 0,
-                tension: 0.4,
-                order: 0
-            }
-        ]
+        datasets,
     };
 
     return (

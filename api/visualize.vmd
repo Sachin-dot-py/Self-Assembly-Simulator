@@ -31,10 +31,13 @@ display set antialias off
 display set shadows off
 display set ambientocclusion off
 loglevel error
+pbc box
 
 # Loop over trajectory frames and render each one as an image
 for {set i 0} {$i < $num_frames} {incr i 1} {
     animate goto $i
+
+    pbc wrap -all
 
     # Render each frame to a TGA file (make the filenames sequential)
     set new_index [expr {$i}]
