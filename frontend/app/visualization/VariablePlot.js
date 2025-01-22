@@ -43,7 +43,6 @@ const options = (variableName, variableUnit) => ({
         },
     },
     responsive: true,
-    maintainAspectRatio: false,
     animation: false,
 });
 
@@ -72,13 +71,18 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         heating: 'Heating',
     };
 
-    const { steps, variableData, colors } = useMemo(() => {
-        let index = 0;
+    const { steps, variableData, colors, datasets } = useMemo(() => {
         let steps = [];
         let variableData = [];
         let colors = [];
+        let datasets = [];
         let insideData = false;
         let currentPhase = 'minimization';
+
+        const phaseData = Object.keys(phaseLabels).reduce((acc, phase) => {
+            acc[phase] = [];
+            return acc;
+        }, {});
 
         log.split('\n').forEach((line) => {
             if (line.includes('500 steps CG Minimization')) {
@@ -121,13 +125,23 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                     steps.push(step);
                     variableData.push(variableValue);
                     colors.push(color);
+                    phaseData[currentPhase].push({ x: step, y: variableValue });
                 }
-                index++;
             }
         });
 
-        return { steps, variableData, colors };
-    }, [log, variableIndex, phaseColors]);
+        datasets = Object.keys(phaseData).map((phase) => ({
+            label: phaseLabels[phase],
+            data: phaseData[phase],
+            borderColor: phaseColors[phase],
+            backgroundColor: phaseColors[phase],
+            pointRadius: 0,
+            fill: false,
+            tension: 0.4,
+        }));
+
+        return { steps, variableData, colors, datasets };
+    }, [log, variableIndex, phaseColors, phaseLabels]);
 
     const gaussianSmooth = (data, sigma = 2) => {
         const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
@@ -181,28 +195,19 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
     const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));
 
+    datasets.push({
+        label: "Polynomial Fit",
+        data: polynomialFitData,
+        borderColor: "rgba(64, 64, 64, 1)",
+        borderDash: [5, 5],
+        fill: false,
+        pointRadius: 0,
+        tension: 0.4,
+    });
+
     const data = {
         labels: visibleStepsSlice,
-        datasets: [
-            {
-                label: `Step vs ${variableName} (${isSmooth ? 'Smooth' : 'Raw'})`,
-                data: visibleVariableDataSlice,
-                pointBackgroundColor: visibleColorsSlice,
-                borderColor: 'rgba(0, 0, 0, 0.1)',
-                tension: 0.4,
-                order: 1,
-            },
-            {
-                label: "Polynomial Fit",
-                data: polynomialFitData.map(point => point.y),
-                borderColor: "rgba(64, 64, 64, 1)",
-                borderDash: [5, 5],
-                fill: false,
-                pointRadius: 0,
-                tension: 0.4,
-                order: 0
-            }
-        ]
+        datasets: datasets,
     };
 
     return (
