@@ -234,7 +234,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 </Col>
             </Row>
             <Row>
-                <Col style={{ height: '100%', width: '100%' }}>
+                <Col style={{ height: '500px', width: '100%' }}>
                     <Line data={data} options={options(variableName, variableUnit)} />
                 </Col>
             </Row>
