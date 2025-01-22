@@ -135,9 +135,9 @@ export default function Page() {
                     </Col>
                 </Row>
                 <Row>
-                    <Col className={styles.plotCol}>
+                    {/* <Col className={styles.plotCol}>
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={12} variableName="Long-Range Energy" variableUnit="eV" />
-                    </Col>
+                    </Col> */}
                     <Col className={styles.plotCol}>
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Van der Waals Energy" variableUnit="eV" />
                     </Col>
