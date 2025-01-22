@@ -184,7 +184,8 @@ class Visualize(Resource):
 
             # Overwrite the current in.lammps with the merged content
             with open(os.path.join(visual_dir, 'in.lammps'), 'w') as f:
-                f.writelines(merged_content)
+                # f.writelines(merged_content)
+                f.writelines(template_lines) # TODO: Removed the Create Lammps Input step for now. Just using the master in.lammps due to bug.
 
             # Step 3: Remove the files 'in.lammps_singlepoint' and 'lammps.lammps.slurm'
             files_to_remove = ['in.lammps_singlepoint', 'lammps.lammps.slurm']
