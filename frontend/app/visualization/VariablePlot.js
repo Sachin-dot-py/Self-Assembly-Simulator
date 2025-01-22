@@ -48,10 +48,9 @@ const options = (variableName, variableUnit) => ({
 });
 
 export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit }) {
-    const [isSmooth, setIsSmooth] = useState(true); // Toggle State
+    const [isSmooth, setIsSmooth] = useState(true);
     const [maxSteps, setMaxSteps] = useState(100);
 
-    // Define colors and labels for each phase
     const phaseColors = {
         minimization: 'rgba(54, 162, 235, 1)',
         heating_1: 'rgba(255, 99, 132, 1)',
@@ -148,7 +147,6 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         setMaxSteps(steps.length);
     }, [steps]);
 
-    // Apply Gaussian smoothing
     const gaussianSmooth = (data, sigma = 2) => {
         const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
         const kernel = Array.from({ length: kernelSize }, (_, i) => {
@@ -168,7 +166,6 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         });
     };
 
-    // Remove outliers
     const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
     const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
     const lowerBound = mean - 2 * stdDev;
@@ -186,23 +183,21 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         { steps: [], variableData: [], colors: [] }
     );
 
-    // Apply Gaussian smoothing if enabled
     const smoothData = isSmooth
         ? gaussianSmooth(filteredData.variableData)
         : filteredData.variableData;
 
-    let filteredSteps = filteredData.steps;
-    let filteredColors = filteredData.colors;
-    let filteredVariableData = smoothData;
+    const filteredSteps = filteredData.steps;
+    const filteredColors = filteredData.colors;
 
     const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredSteps.length);
-    const visibleVariableDataSlice = filteredVariableData.slice(0, maxVisibleIndex);
+    const visibleVariableDataSlice = smoothData.slice(0, maxVisibleIndex);
     const visibleStepsSlice = filteredSteps.slice(0, maxVisibleIndex);
     const visibleColorsSlice = filteredColors.slice(0, maxVisibleIndex);
 
     const coords = visibleStepsSlice.map((el, index) => [el, visibleVariableDataSlice[index]]);
     const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
-    const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));    
+    const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));
 
     datasets.push({
         label: "Polynomial Fit",
@@ -216,7 +211,16 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
 
     const data = {
         labels: visibleStepsSlice,
-        datasets,
+        datasets: [
+            ...datasets,
+            {
+                label: `Step vs ${variableName} (${isSmooth ? 'Smooth' : 'Raw'})`,
+                data: visibleVariableDataSlice,
+                pointBackgroundColor: visibleColorsSlice,
+                borderColor: 'rgba(0, 0, 0, 0.1)',
+                tension: 0.4,
+            },
+        ],
     };
 
     return (
