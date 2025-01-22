@@ -22,7 +22,7 @@ thermo_modify        line multi format float %14.6f flush yes
 variable             input string in.lammps
 variable             sname string lammps
 
-timestep             1
+timestep             1
 
 change_box           all x scale 1.1 y scale 1.1 remap
 
