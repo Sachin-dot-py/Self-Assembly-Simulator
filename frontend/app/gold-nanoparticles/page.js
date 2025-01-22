@@ -257,6 +257,8 @@ export default function SurfactantForm() {
                         <Col className={styles.plotCol}>
                             <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Van der Waals Energy" variableUnit="eV" />
                         </Col>
+                        <Col className={styles.plotCol}>
+                        </Col>
                     </Row>
                 </Container>
             )}
