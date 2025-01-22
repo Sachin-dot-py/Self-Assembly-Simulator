@@ -113,6 +113,9 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
             if (insideData) {
                 let columns = line.trim().split(/\s+/);
                 let step = parseInt(columns[0]);
+                if (step < 100){ 
+                    return;
+                }
                 let variableValue = parseFloat(columns[variableIndex]);
 
                 let color = phaseColors[currentPhase];
