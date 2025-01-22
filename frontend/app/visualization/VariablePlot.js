@@ -51,14 +51,14 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const [isSmooth, setIsSmooth] = useState(true);
 
     const phaseColors = {
-        minimization: 'rgba(54, 162, 235, 1)',
-        heating_1: 'rgba(255, 99, 132, 1)',
-        pressure_equilibration_1: 'rgba(75, 192, 192, 1)',
-        heating_2: 'rgba(255, 159, 64, 1)',
-        pressure_equilibration_2: 'rgba(153, 102, 255, 1)',
-        cooling: 'rgba(255, 206, 86, 1)',
-        final_equilibration: 'rgba(201, 203, 207, 1)',
-        heating: 'rgba(54, 235, 54, 1)',
+        minimization: 'rgba(128, 128, 128, 1)', 
+        heating_1: 'rgba(255, 69, 0, 1)',       
+        pressure_equilibration_1: 'rgba(30, 144, 255, 1)', 
+        heating_2: 'rgba(255, 140, 0, 1)',   
+        pressure_equilibration_2: 'rgba(100, 149, 237, 1)', 
+        cooling: 'rgba(0, 191, 255, 1)',       
+        final_equilibration: 'rgba(144, 238, 144, 1)', 
+        heating: 'rgba(255, 99, 71, 1)',
     };
 
     const phaseLabels = {
