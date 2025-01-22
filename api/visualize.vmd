@@ -38,7 +38,7 @@ display set ambientocclusion off
 for {set i 0} {$i < $num_frames} {incr i 4} {
     animate goto $i
 
-    # pbc wrap -all
+    pbc wrap -all
 
     # Render each frame to a TGA file (make the filenames sequential)
     set new_index [expr {$i / 4}]
