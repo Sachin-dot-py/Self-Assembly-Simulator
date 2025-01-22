@@ -36,6 +36,12 @@ def convert_mdl_to_bgf(mdl_filename):
     # Step 3: Update BGF file charges using sed
     update_bgf_with_sed(bgf_filename, atom_charges)
 
+    # Center the BGF
+    subprocess.run(
+        ['/root/ATLAS-toolkit/scripts/centerBGF.pl', '-b', bgf_filename, '-f', 'UFF'],
+        check=True
+    )
+
 def extract_charges_from_mdl(mdl_filename):
     """Extracts atomic charges from the MDL V3000 file."""
     charges = {}
