@@ -452,14 +452,14 @@ export default function SurfactantForm() {
                             <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={12} variableName="Long-Range Energy" variableUnit="eV" />
                         </Col>
                     </Row> */}
-                    <Row>
+                    {/* <Row>
                         <Col className={styles.plotCol}>
                             <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Van der Waals Energy" variableUnit="eV" />
                         </Col>
                         <Col className={styles.plotCol}>
                             <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={2} variableName="Van der Waals Energy" variableUnit="eV" />
                         </Col>
-                    </Row>
+                    </Row> */}
                 </Container>
             )}
         </>
