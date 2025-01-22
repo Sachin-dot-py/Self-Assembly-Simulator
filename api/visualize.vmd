@@ -34,7 +34,8 @@ display set antialias off
 display set shadows off
 display set ambientocclusion off
 pbc wrap -first 1 -last last
-pbcbox_update -molid top -style lines -width 3 -rectangular
+pbc box
+pbcbox_update -molid top -style lines -width 3 -rectangular -color white
 
 # Loop over trajectory frames and render each one as an image
 for {set i 1} {$i < $num_frames} {incr i 3} {
