@@ -1,4 +1,5 @@
 package require pbctools
+require pbcbox
 
 # Load the BGF structure
 mol new input.bgf autobonds off
