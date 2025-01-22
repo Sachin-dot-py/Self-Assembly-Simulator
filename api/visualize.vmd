@@ -1,3 +1,5 @@
+package require pbctools
+
 # Load the BGF structure
 mol new input.bgf autobonds off
 
@@ -30,7 +32,6 @@ display resize 620 400
 display set antialias off
 display set shadows off
 display set ambientocclusion off
-loglevel error
 pbc box
 
 # Loop over trajectory frames and render each one as an image
