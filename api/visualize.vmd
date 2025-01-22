@@ -32,13 +32,12 @@ display resize 620 400
 display set antialias off
 display set shadows off
 display set ambientocclusion off
-# pbc box
+pbc wrap -first 1 -last last
+pbcbox_update -molid top -style lines -width 3 -rectangular
 
 # Loop over trajectory frames and render each one as an image
 for {set i 1} {$i < $num_frames} {incr i 3} {
     animate goto $i
-
-    pbc wrap
 
     # Render each frame to a TGA file (make the filenames sequential)
     set new_index [expr {$i / 3}]
