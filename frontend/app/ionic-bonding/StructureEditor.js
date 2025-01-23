@@ -26,6 +26,11 @@ export default function StructureEditor() {
                         window.ketcher = ketcher;
                         }, 1000);
                     }
+
+                    // Set the hydrogen labels off
+                    window.ketcher.setSettings({
+                        "showHydrogenLabels": "off"
+                    });
                     }}
                 />
             </div>
