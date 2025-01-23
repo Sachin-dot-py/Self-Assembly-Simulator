@@ -37,7 +37,7 @@ export default function EditorPage() {
             <Card.Text>
             This tool demonstrates how atoms arrange themselves in materials due to the forces between them, and how changes in their environment affect these arrangements.
             <br />
-            You will create a group of positively and negatively charged atoms in a virtual box. These atoms attract and repel each other based on Coulomb's law:
+            You will create a group of positively and negatively charged atoms in a virtual box. These atoms attract and repel each other based on Coulomb&apos;s law:
             <br />
             <img src="https://latex.codecogs.com/svg.image?&space;F=\frac{k\cdot&space;q1\cdot&space;q2}{r^2}" title=" F=\frac{k\cdot q1\cdot q2}{r^2}" />
             <br />
