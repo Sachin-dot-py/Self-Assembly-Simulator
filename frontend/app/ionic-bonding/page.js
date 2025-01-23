@@ -33,9 +33,18 @@ export default function EditorPage() {
         <Card bg={"dark"} text={"white"} style={{ width: '52rem' }}>
           <Card.Header as="h5">Visualizing the Self-Assembly of Ions</Card.Header>
           <Card.Body>
-            <Card.Title>What does this tool do?</Card.Title>
             <Card.Text>
-              This tool allows users to create chemical structures and visualize the process of self-assembly of ions.
+            Welcome to our Ionic Bonding Simulation Tool! This tool demonstrates how atoms arrange themselves in materials due to the forces between them, and how changes in their environment affect these arrangements.
+            <br />
+            You will create a group of positively and negatively charged atoms in a virtual box. These atoms attract and repel each other based on Coulomb's law:
+            <br />
+            F=k⋅q1⋅q2/r^2, (please put the formula in either an image or in latex form)
+            <br />
+            where F is the force, k is a constant, q1 and q2 are charges, and r is the distance between charges. Positive charges attract negative charges and repel other positive charges, and vice versa for negative charges.
+            <br />
+            Next, the system will be simulated using Molecular Dynamics software. This program simulates atoms over time according to classical physics laws. Each atom receives a random velocity based on the chosen temperature, simulating real-world disturbances beyond Coulombic forces.
+            <br />
+            Follow the instructions below to set up your system. Try creating an unstable structure by following the attraction and repulsion rules. See how it assembles into a more stable configuration through our optimization procedure!
             </Card.Text>
             <Card.Title>How do I use this tool?</Card.Title>
             <Card.Text>
