@@ -28,9 +28,7 @@ export default function StructureEditor() {
                     }
 
                     // Set the hydrogen labels off
-                    window.ketcher.setSettings({
-                        "showHydrogenLabels": "off"
-                    });
+                    ketcher.editor.render.options.showHydrogenLabels = "off"
                     }}
                 />
             </div>
