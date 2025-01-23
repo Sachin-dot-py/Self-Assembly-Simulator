@@ -33,8 +33,9 @@ export default function EditorPage() {
         <Card bg={"dark"} text={"white"} style={{ width: '52rem' }}>
           <Card.Header as="h5">Visualizing the Self-Assembly of Ions</Card.Header>
           <Card.Body>
+            <Card.Title>Welcome to our Ionic Bonding Simulation Tool!</Card.Title>
             <Card.Text>
-            Welcome to our Ionic Bonding Simulation Tool! This tool demonstrates how atoms arrange themselves in materials due to the forces between them, and how changes in their environment affect these arrangements.
+            This tool demonstrates how atoms arrange themselves in materials due to the forces between them, and how changes in their environment affect these arrangements.
             <br />
             You will create a group of positively and negatively charged atoms in a virtual box. These atoms attract and repel each other based on Coulomb's law:
             <br />
