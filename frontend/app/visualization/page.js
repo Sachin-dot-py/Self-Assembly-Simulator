@@ -144,7 +144,7 @@ Finally, atoms are cooled back to room temperature at the last box size, stabili
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={19} variableName="Volume" variableUnit="A^3" />
                     </Col>
                 </Row>
                 <Row>
@@ -161,13 +161,6 @@ Finally, atoms are cooled back to room temperature at the last box size, stabili
                     </Col>
                     <Col className={styles.plotCol}>
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={17} variableName="Thermostat / Barostat Energy" variableUnit="eV" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={19} variableName="Volume" variableUnit="A^3" />
-                    </Col>
-                    <Col className={styles.plotCol}>
                     </Col>
                 </Row>
             </Container>
