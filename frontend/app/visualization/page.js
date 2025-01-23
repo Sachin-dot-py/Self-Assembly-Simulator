@@ -128,21 +128,34 @@ export default function Page() {
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="eV" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Coulomb Energy" variableUnit="eV" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" />
                     </Col>
                 </Row>
                 <Row>
-                    {/* <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={12} variableName="Long-Range Energy" variableUnit="eV" />
-                    </Col> */}
-                    {/* <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Van der Waals Energy" variableUnit="eV" />
-                    </Col> */}
-                    {/* <Col className={styles.plotCol}>
-                    </Col> */}
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="eV" />
+                    </Col>
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="eV" />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={8} variableName="Pairwise Energy (van der Waals + Coulombic)" variableUnit="eV" />
+                    </Col>
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={17} variableName="Thermostat / Barostat Energy" variableUnit="eV" />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={19} variableName="Volume" variableUnit="A^3" />
+                    </Col>
+                    <Col className={styles.plotCol}>
+                    </Col>
                 </Row>
             </Container>
         </>
