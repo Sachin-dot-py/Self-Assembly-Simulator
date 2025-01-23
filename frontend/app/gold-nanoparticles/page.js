@@ -217,7 +217,6 @@ export default function SurfactantForm() {
                             </div>
                         </Col>
                     </Row>
-                    {visualId === 'CA/1.5' && (
                     <Row>
                         <Col className={styles.visualizationCol}>
                             <VideoSync visualId={visualId} progress={sliderValue} display={"barplot"} />
@@ -225,7 +224,7 @@ export default function SurfactantForm() {
                         <Col className={styles.visualizationCol}>
                             <VideoSync visualId={visualId} progress={sliderValue} display={"clusters"} />
                         </Col>
-                    </Row>)}
+                    </Row>
                     <Row>
                         <Col className={styles.plotCol}>
                             <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
