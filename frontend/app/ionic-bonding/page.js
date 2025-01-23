@@ -39,7 +39,7 @@ export default function EditorPage() {
             <br />
             You will create a group of positively and negatively charged atoms in a virtual box. These atoms attract and repel each other based on Coulomb's law:
             <br />
-            F=k⋅q1⋅q2/r^2, (please put the formula in either an image or in latex form)
+            <img src="https://latex.codecogs.com/svg.image?&space;F=\frac{k\cdot&space;q1\cdot&space;q2}{r^2}" title=" F=\frac{k\cdot q1\cdot q2}{r^2}" />
             <br />
             where F is the force, k is a constant, q1 and q2 are charges, and r is the distance between charges. Positive charges attract negative charges and repel other positive charges, and vice versa for negative charges.
             <br />
