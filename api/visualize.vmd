@@ -36,6 +36,8 @@ display set ambientocclusion off
 pbc wrap -first 1 -last last
 pbc box
 pbcbox_update -molid top -style lines -width 3 -rectangular -color white
+animate goto 1
+mol showperiodic all 1 xy
 
 # Loop over trajectory frames and render each one as an image
 for {set i 1} {$i < $num_frames} {incr i 3} {
