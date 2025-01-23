@@ -108,7 +108,20 @@ export default function Page() {
                     </Col>
                     <Col className={styles.textCol}>
                         <div className={styles.explanationText}>
-                            <h4>Explanation Text</h4>
+                            <h4>Welcome to the Results Page!</h4>
+                            <p>
+                            Here, you can explore how your 2D system evolves over time.
+<br /><br />
+You'll find a video showing how atoms moved during the optimization process, along with plots describing the evolving properties of your self-assembling structure. In the video, atoms are placed in an imaginary 2D periodic box. The simulation assumes atoms interact with their periodic images outside the box, enhancing realism.
+<br /><br />
+The simulation mimics annealing, a process used in metallurgy. Initially, an algorithm minimizes the system's energy at 0 Kelvin, seeking a lower-energy structure. This structure may not be the lowest possible, but it shows signs of assembling into a more stable configuration.
+<br /><br />
+Next, atoms are heated to room temperature (298K) at constant volume, where kinetic energy affects their movement. Then, volume changes allow the box to better fit the atoms, creating a more periodic structure with positive and negative atoms interleaved.
+<br /><br />
+Subsequent steps heat the material to 1000K at the fixed volume, then adjust volume at constant temperature and pressure. This provides enough energy for atoms to overcome local energy minima.
+<br /><br />
+Finally, atoms are cooled back to room temperature at the last box size, stabilizing the structure. This process ensures your structure achieves its most stable self-assembled geometry at room temperature.
+                            </p>
                             <div className={styles.legendContainer}>
                                 <h5 className={styles.legendTitle}>Ion Color Legend</h5>
                                 <div className={styles.legendGrid}>
