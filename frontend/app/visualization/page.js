@@ -112,9 +112,9 @@ export default function Page() {
                             <p>
                             Here, you can explore how your 2D system evolves over time.
 <br /><br />
-You'll find a video showing how atoms moved during the optimization process, along with plots describing the evolving properties of your self-assembling structure. In the video, atoms are placed in an imaginary 2D periodic box. The simulation assumes atoms interact with their periodic images outside the box, enhancing realism.
+You&apos;ll find a video showing how atoms moved during the optimization process, along with plots describing the evolving properties of your self-assembling structure. In the video, atoms are placed in an imaginary 2D periodic box. The simulation assumes atoms interact with their periodic images outside the box, enhancing realism.
 <br /><br />
-The simulation mimics annealing, a process used in metallurgy. Initially, an algorithm minimizes the system's energy at 0 Kelvin, seeking a lower-energy structure. This structure may not be the lowest possible, but it shows signs of assembling into a more stable configuration.
+The simulation mimics annealing, a process used in metallurgy. Initially, an algorithm minimizes the system&apos;s energy at 0 Kelvin, seeking a lower-energy structure. This structure may not be the lowest possible, but it shows signs of assembling into a more stable configuration.
 <br /><br />
 Next, atoms are heated to room temperature (298K) at constant volume, where kinetic energy affects their movement. Then, volume changes allow the box to better fit the atoms, creating a more periodic structure with positive and negative atoms interleaved.
 <br /><br />
