@@ -8,6 +8,15 @@ function Navigation() {
     <>
       <Navbar bg="primary" data-bs-theme="dark">
         <Container>
+        <Navbar.Brand href="/">
+            <img
+                alt=""
+                src="/static/ucsdlogo.png"
+                width="60"
+                height="30"
+                className="d-inline-block align-top"
+              />{' '}
+          </Navbar.Brand>
           <Navbar.Brand href="/">
             <img
                 alt=""

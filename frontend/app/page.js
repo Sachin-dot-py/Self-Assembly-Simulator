@@ -6,6 +6,7 @@ import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Image from 'next/image';
 import { FaPlay, FaInfoCircle } from 'react-icons/fa';
+import Footer from './components/Footer';
 
 export default function Home() {
 
@@ -66,6 +67,7 @@ export default function Home() {
                         <FaInfoCircle style={{ marginRight: '0.5rem' }} /> Learn More
                     </Button>
                 </section>
+                <Footer />
             </div>
         </>
     );
