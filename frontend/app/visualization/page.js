@@ -146,7 +146,7 @@ Repeat the video a few times while looking at the plots and notice how each prop
                         <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="kcal/mol" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={8} variableName="Pairwise Energy (van der Waals + Coulombic)" variableUnit="kcal/mol" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={7} variableName="Coulombic Energy" variableUnit="kcal/mol" />
                     </Col>
                 </Row>
                 <Row>
