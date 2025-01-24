@@ -73,9 +73,11 @@ export default function SurfactantForm() {
             <Container className={styles.formContainer}>
                 <h1 className={styles.header}>Gold Nanoparticle Self-Assembly</h1>
                 <p className={styles.description}>
-                    Select the surfactant you want to add to the water and its concentration
-                    relative to the molarity of Gold. This is used in the process of simulating the
-                    Self-Assembly of the Gold nanoparticles.
+                This tool demonstrates the self-assembly process of gold nanoparticles (AuNPs) solvated in water and exposed to different surfactant molecules and concentrations. Gold nanoparticles are studied for their unique optical, electronic, and catalytic properties, making them valuable in fields such as biomedicine, catalysis, and electronics.
+<br /><br />
+Surfactants, like citric acid, are often used in the synthesis of gold nanoparticles to control their size and shape. Surfactant molecules attach to the surface of the nanoparticles, stabilizing them and preventing them from clumping together. As the concentration of surfactants increases, the size of the gold nanoparticles tends to decrease.
+<br /><br />
+Below, you&apos;ll find information about how these systems evolve during the simulation. All original systems contain a 16M concentration of gold (roughly 1200 gold atoms for every 3000 water molecules). For systems containing surfactants, you can choose to add surfactant molecules at half, the same, or double the concentration of gold. Select the surfactant and its concentration, and observe the trends in the results!
                 </p>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group controlId="formSurfactant" className={styles.formGroup}>
