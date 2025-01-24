@@ -219,18 +219,10 @@ export default function SurfactantForm() {
                     </Row>
                     <Row>
                         <Col className={styles.visualizationCol}>
-                            <VideoSync visualId={visualId} progress={sliderValue} display={"barplot"} />
-                        </Col>
-                        <Col className={styles.visualizationCol}>
                             <VideoSync visualId={visualId} progress={sliderValue} display={"clusters"} />
                         </Col>
-                    </Row>
-                    <Row>
-                        <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" />
-                        </Col>
-                        <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" />
+                        <Col className={styles.visualizationCol}>
+                            <VideoSync visualId={visualId} progress={sliderValue} display={"barplot"} />
                         </Col>
                     </Row>
                     <Row>
@@ -243,10 +235,10 @@ export default function SurfactantForm() {
                     </Row>
                     <Row>
                         <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" />
+                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={14} variableName="Long-range Energy" variableUnit="kcal/mol" />
                         </Col>
                         <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Potential Energy" variableUnit="kcal/mol" />
+                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" />
                         </Col>
                     </Row>
                 </Container>
