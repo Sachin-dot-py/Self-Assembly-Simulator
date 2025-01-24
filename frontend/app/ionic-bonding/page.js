@@ -37,15 +37,15 @@ export default function EditorPage() {
             <Card.Text>
             This tool demonstrates how atoms arrange themselves in materials due to the forces between them, and how changes in their environment affect these arrangements.
             <br />
-            You will create a group of positively and negatively charged atoms in a virtual box. These atoms attract and repel each other based on Coulomb&apos;s law:
+            You will create a group of positively and negatively charged atoms (ions) in a virtual box. These atoms attract and repel each other based on Coulomb's law:
             <br />
             <img src="https://latex.codecogs.com/svg.image?\color{white}{F=\frac{k\cdot%20q1\cdot%20q2}{r^2}}" title="\color{white}{F=\frac{k\cdot q1\cdot q2}{r^2}}" />
             <br />
-            where F is the force, k is a constant, q1 and q2 are charges, and r is the distance between charges. Positive charges attract negative charges and repel other positive charges, and vice versa for negative charges.
+            where F is the force between two atoms, k is a constant, q1 and q2 are the charges of each ion, and r is the distance between these atoms. Positive charges attract negative charges and repel other positive charges, and vice versa for negative charges.
             <br />
-            Next, the system will be simulated using Molecular Dynamics software. This program simulates atoms over time according to classical physics laws. Each atom receives a random velocity based on the chosen temperature, simulating real-world disturbances beyond Coulombic forces.
+            Next, the system will be input into a Molecular Dynamics software. This program simulates atoms over time according to classical physics laws. Each atom receives a random velocity based on the chosen temperature, simulating real-world disturbances beyond Coulombic forces.
             <br />
-            Follow the instructions below to set up your system. Try creating an unstable structure by following the attraction and repulsion rules. See how it assembles into a more stable configuration through our optimization procedure!
+            Follow the instructions below to set up your system. Try creating an unstable structure by following the attraction and repulsion rules mentioned above. In other words, try setting up positive charges close to each other and the same for negative charges. Wait a bit for the simulation to run and observe how atoms will move and intercalate to assemble into a more stable configuration through our optimization procedure!
             </Card.Text>
             <Card.Title>How do I use this tool?</Card.Title>
             <Card.Text>

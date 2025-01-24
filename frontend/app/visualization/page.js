@@ -112,16 +112,18 @@ export default function Page() {
                             <p>
                             Here, you can explore how your 2D system evolves over time.
 <br /><br />
-You&apos;ll find a video showing how atoms moved during the optimization process, along with plots describing the evolving properties of your self-assembling structure. In the video, atoms are placed in an imaginary 2D periodic box. The simulation assumes atoms interact with their periodic images outside the box, enhancing realism.
+You&apos;ll find a video showing how atoms moved during the optimization process, along with plots describing the most important evolving properties of your self-assembling structure. In the video, atoms are placed in an imaginary 2D periodic box. The simulation assumes atoms interact with their periodic images outside the box, enhancing realism. Therefore, we show a few of these periodic images outside of the box as well for better visualization!
 <br /><br />
-The simulation mimics annealing, a process used in metallurgy. Initially, an algorithm minimizes the system&apos;s energy at 0 Kelvin, seeking a lower-energy structure. This structure may not be the lowest possible, but it shows signs of assembling into a more stable configuration.
+The simulation mimics annealing, a process used in metallurgy to obtain desired atomic organizations in metals that can make them more malleable, for instance. Initially, an algorithm minimizes the system&apos;s energy at 0 Kelvin (notice the temperature plot), seeking a lower-energy arrangement of atoms. This may not be the lowest-energy structure possible, but it shows signs of assembling into a more stable configuration.
 <br /><br />
-Next, atoms are heated to room temperature (298K) at constant volume, where kinetic energy affects their movement. Then, volume changes allow the box to better fit the atoms, creating a more periodic structure with positive and negative atoms interleaved.
+Next, atoms are heated to room temperature (298K) at constant volume, where kinetic energy affects their movement. Then, volume changes allow the box to better fit the atoms, creating a more periodic structure with positive and negative atoms interleaved. This structure should have a lower total energy than the one after minimization, but it might still be stuck in a local energy minima, so we need to give the atoms more energy to vibrate more and possibly assemble in more stable states.
 <br /><br />
-Subsequent steps heat the material to 1000K at the fixed volume, then adjust volume at constant temperature and pressure. This provides enough energy for atoms to overcome local energy minima.
+Subsequent steps heat the material to 1000K at the fixed volume, then adjust volume at constant temperature and pressure. This provides enough energy for atoms to overcome most local energy minima, meaning that they are likely to achieve their most stable configuration.
 <br /><br />
-Finally, atoms are cooled back to room temperature at the last box size, stabilizing the structure. This process ensures your structure achieves its most stable self-assembled geometry at room temperature.
-                            </p>
+Finally, atoms are cooled back to room temperature while allowing for the volume to vary, stabilizing the structure into its most optimal configuration. This process ensures your structure achieves its most stable self-assembled geometry at room temperature.
+<br /><br />
+Repeat the video a few times while looking at the plots and notice how each property is influenced by each state of the system! Try to identify the isobaric (constant pressure), isovolumetric (constant volume), and isothermal (constant temperature) steps!
+</p>
                             <div className={styles.legendContainer}>
                                 <h5 className={styles.legendTitle}>Ion Color Legend</h5>
                                 <div className={styles.legendGrid}>
