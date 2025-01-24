@@ -414,34 +414,34 @@ export default function SurfactantForm() {
                     </Row>
                     <Row>
                         <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="eV" />
+                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="kcal/mol" />
                         </Col>
                         <Col className={styles.plotCol}>
-                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="eV" />
+                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="kcal/mol" />
                         </Col>
                     </Row>
                     <Row>
                     <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={6} variableName="Van der Waals Energy" variableUnit="eV" />
+                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={6} variableName="Van der Waals Energy" variableUnit="kcal/mol" />
                         </Col>
                         <Col className={styles.plotCol}>
-                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={6} variableName="Van der Waals Energy" variableUnit="eV" />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="eV" />
-                        </Col>
-                        <Col className={styles.plotCol}>
-                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="eV" />
+                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={6} variableName="Van der Waals Energy" variableUnit="kcal/mol" />
                         </Col>
                     </Row>
                     <Row>
                         <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Potential Energy" variableUnit="eV" />
+                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" />
                         </Col>
                         <Col className={styles.plotCol}>
-                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={3} variableName="Potential Energy" variableUnit="eV" />
+                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col className={styles.plotCol}>
+                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Potential Energy" variableUnit="kcal/mol" />
+                        </Col>
+                        <Col className={styles.plotCol}>
+                            <VariablePlot log={log2} sliderValue={sliderValue} variableIndex={3} variableName="Potential Energy" variableUnit="kcal/mol" />
                         </Col>
                     </Row>
                 </Container>

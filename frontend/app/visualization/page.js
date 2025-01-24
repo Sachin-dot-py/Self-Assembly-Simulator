@@ -149,18 +149,18 @@ Finally, atoms are cooled back to room temperature at the last box size, stabili
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="eV" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="kcal/mol" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="eV" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" />
                     </Col>
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={8} variableName="Pairwise Energy (van der Waals + Coulombic)" variableUnit="eV" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={8} variableName="Pairwise Energy (van der Waals + Coulombic)" variableUnit="kcal/mol" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={17} variableName="Thermostat / Barostat Energy" variableUnit="eV" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={17} variableName="Thermostat / Barostat Energy" variableUnit="kcal/mol" />
                     </Col>
                 </Row>
             </Container>
