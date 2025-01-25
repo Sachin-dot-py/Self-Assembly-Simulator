@@ -235,14 +235,6 @@ Below, you&apos;ll find information about how these systems evolve during the si
                             <VariablePlot log={log} sliderValue={sliderValue} variableIndex={6} variableName="Van der Waals Energy" variableUnit="kcal/mol" />
                         </Col>
                     </Row>
-                    <Row>
-                        <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={14} variableName="Long-range Energy" variableUnit="kcal/mol" />
-                        </Col>
-                        <Col className={styles.plotCol}>
-                            <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" />
-                        </Col>
-                    </Row>
                 </Container>
             )}
         </>
