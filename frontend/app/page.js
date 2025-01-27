@@ -26,6 +26,8 @@ export default function Home() {
                         <Image src="/static/nano2.png" alt="Self-Assembly Visualization" width={400} height={300} />
                     </div>
                 </header>
+                <Footer />
+                <br /><br />
                 <section className={styles.featuresSection}>
                     <h2>Tools</h2>
                     <div className={styles.featuresContainer}>
@@ -67,7 +69,6 @@ export default function Home() {
                         <FaInfoCircle style={{ marginRight: '0.5rem' }} /> Learn More
                     </Button>
                 </section>
-                <Footer />
             </div>
         </>
     );
