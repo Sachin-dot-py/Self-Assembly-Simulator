@@ -55,11 +55,11 @@ thermo_style         custom step temp press pe ke etotal evdwl ecoul epair ebond
 dump                 1 all custom 5 ${sname}.minimization.lammpstrj id type xu yu zu vx vy vz
 thermo               5
 min_style            sd
-minimize             0 0 5000 50000
-minimize             0 0 5000 50000
+minimize             0 0 10000 50000
+minimize             0 0 10000 50000
 min_style            cg
-minimize             0 0 5000 50000
-minimize             0 0 5000 50000
+minimize             0 0 10000 50000
+minimize             0 0 10000 50000
 undump               1
 
 print                .
@@ -83,7 +83,7 @@ print                "NPT dynamics with an isotropic pressure of 1atm. x1"
 print                =================================================
 print                .
 
-fix                  2 all npt temp 298.0 298.0 100.0 x 1.0 1.0 500.0 y 1.0 1.0 500.0
+fix                  2 all npt temp 298.0 298.0 100.0 x 1.0 1.0 250.0 y 1.0 1.0 250.0
 dump                 1 all custom 100 ${sname}.pressure1.lammpstrj id type xu yu zu vx vy vz
 run                  10000
 unfix                2
@@ -107,7 +107,7 @@ print                "NPT dynamics with an isotropic pressure of 1atm. x2"
 print                =================================================
 print                .
 
-fix                  2 all npt temp 1000.0 1000.0 100.0 x 1.0 1.0 500.0 y 1.0 1.0 500.0
+fix                  2 all npt temp 1000.0 1000.0 100.0 x 1.0 1.0 250.0 y 1.0 1.0 250.0
 dump                 1 all custom 100 ${sname}.pressure2.lammpstrj id type xu yu zu vx vy vz
 run                  10000
 unfix                2
@@ -115,11 +115,11 @@ undump               1
 
 print                .
 print                =====================================
-print                "NVT dynamics to heat system x3"
+print                "NPT dynamics to cool system"
 print                =====================================
 print                .
 
-fix                  3 all nvt temp 1000.0 298.0 100.0
+fix                  3 all npt temp 1000.0 298.0 100.0
 dump                 1 all custom 100 ${sname}.cool.lammpstrj id type xu yu zu vx vy vz
 run                  10000
 unfix                3

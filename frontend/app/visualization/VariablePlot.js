@@ -126,7 +126,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 currentPhase = 'heating_2';
             } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm. x2')) {
                 currentPhase = 'pressure_equilibration_2';
-            } else if (line.includes('NVT dynamics to heat system x3')) {
+            } else if (line.includes('NPT dynamics to cool system')) {
                 currentPhase = 'cooling';
             } else if (line.includes('NVT dynamics for equilibration')) {
                 currentPhase = 'final_equilibration';
