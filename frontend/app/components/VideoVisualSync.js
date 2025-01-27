@@ -9,9 +9,17 @@ export default function VideoVisualSync({ visualId, progress }) {
     useEffect(() => {
         const video = vidRef.current;
 
+        if (!video) return; // Ensure video element is available
+
         const updateCurrentTime = () => {
-            if (video && video.duration) {
-                const desiredTime = (progress / 100) * video.duration;
+            if (video.duration) {
+                let desiredTime = (progress / 100) * video.duration;
+
+                // Handle the case when progress is 100%
+                if (progress >= 100) {
+                    desiredTime = Math.max(0, video.duration - 0.1); // Set to last frame
+                }
+
                 const currentTime = video.currentTime;
                 const timeDifference = Math.abs(currentTime - desiredTime);
 
@@ -24,17 +32,27 @@ export default function VideoVisualSync({ visualId, progress }) {
         };
 
         const handlePlayback = (isChanging) => {
-            if (video) {
-                if (isChanging) {
-                    // Progress is changing
-                    if (video.paused) {
-                        video.play();
-                    }
-                } else {
-                    // Progress is not changing
-                    if (!video.paused) {
-                        video.pause();
-                    }
+            if (progress >= 100) {
+                // If progress is 100%, pause the video and set to last frame
+                if (!video.paused) {
+                    video.pause();
+                }
+                video.currentTime = Math.max(0, video.duration - 0.1);
+                return;
+            }
+
+            if (isChanging) {
+                // Progress is changing
+                if (video.paused) {
+                    video.play().catch((error) => {
+                        // Handle any play() promise rejections
+                        console.error("Error attempting to play the video:", error);
+                    });
+                }
+            } else {
+                // Progress is not changing
+                if (!video.paused) {
+                    video.pause();
                 }
             }
         };
@@ -53,23 +71,21 @@ export default function VideoVisualSync({ visualId, progress }) {
             }, 300); // Adjust delay as needed
         }
 
-        // Update currentTime
-        if (video) {
-            if (video.readyState >= 1) {
-                // Video metadata is ready
+        // Update currentTime and handle playback
+        if (video.readyState >= 1) {
+            // Video metadata is ready
+            updateCurrentTime();
+            handlePlayback(isProgressChanging);
+        } else {
+            // Wait for metadata to load
+            const handleLoadedMetadata = () => {
                 updateCurrentTime();
                 handlePlayback(isProgressChanging);
-            } else {
-                // Wait for metadata to load
-                const handleLoadedMetadata = () => {
-                    updateCurrentTime();
-                    handlePlayback(isProgressChanging);
-                    video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-                };
-                video.addEventListener('loadedmetadata', handleLoadedMetadata);
-            }
+                video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            };
+            video.addEventListener('loadedmetadata', handleLoadedMetadata);
         }
-        
+
         prevProgress.current = progress;
 
         // Clean up function
@@ -77,6 +93,7 @@ export default function VideoVisualSync({ visualId, progress }) {
             if (progressChangeTimeout.current) {
                 clearTimeout(progressChangeTimeout.current);
             }
+            // Optionally, remove any other event listeners if added
         };
     }, [progress]);
 
@@ -86,8 +103,16 @@ export default function VideoVisualSync({ visualId, progress }) {
                 ref={vidRef} 
                 height="80%" 
                 width="100%" 
+                // Prevent looping to ensure it doesn't restart automatically
+                loop={false}
+                // Optionally, handle the 'ended' event to ensure it stays paused
+                onEnded={(e) => {
+                    e.target.pause();
+                    e.target.currentTime = Math.max(0, e.target.duration - 0.1);
+                }}
             >
                 <source src={`/api/getvideo/${visualId}`} type="video/mp4" />
+                Your browser does not support the video tag.
             </video>
 
             <div>
