@@ -45,7 +45,7 @@ const options = (variableName, variableUnit, plotType) => ({
                             fillStyle: 'rgba(100, 149, 237, 1)',
                         },
                         {
-                            text: "Cool (constant V) to room temperature",
+                            text: "Cool (constant P) to room temperature",
                             fillStyle: 'rgba(0, 191, 255, 1)',
                         },
                         {
@@ -102,7 +102,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         pressure_equilibration_1: 'Maintain (constant P) at room temperature',
         heating_2: 'Heat/anneal (constant V) to 1000K',
         pressure_equilibration_2: 'Maintain (constant P) at 1000K',
-        cooling: 'Cool (constant V) to room temperature',
+        cooling: 'Cool (constant P) to room temperature',
         final_equilibration: 'Equilibrate (constant V) at room temperature',
         heating: 'Heating',
     };
