@@ -4,7 +4,7 @@ import { Line } from 'react-chartjs-2';
 import regression from 'regression';
 import { Form, Container, Row, Col } from 'react-bootstrap';
 
-const options = (variableName, variableUnit) => ({
+const options = (variableName, variableUnit, plotType) => ({
     plugins: {
         title: {
             text: `${variableName}`,
@@ -18,8 +18,43 @@ const options = (variableName, variableUnit) => ({
             },
         },
         legend: {
-            display: true,
+            display: plotType === "ionic",
             position: 'top',
+            labels: {
+                // Custom legend to label each phase color
+                generateLabels: (chart) => {
+                    return [
+                        {
+                            text: "Algorithm minimization",
+                            fillStyle: 'rgba(128, 128, 128, 1)',
+                        },
+                        {
+                            text: "Heat (constant V) to room temperature",
+                            fillStyle: 'rgba(255, 69, 0, 1)',
+                        },
+                        {
+                            text: "Maintain (constant P) at room temperature",
+                            fillStyle: 'rgba(30, 144, 255, 1)',
+                        },
+                        {
+                            text: "Heat/anneal (constant V) to 1000K",
+                            fillStyle: 'rgba(255, 140, 0, 1)',
+                        },
+                        {
+                            text: "Maintain (constant P) at 1000K",
+                            fillStyle: 'rgba(100, 149, 237, 1)',
+                        },
+                        {
+                            text: "Cool (constant V) to room temperature",
+                            fillStyle: 'rgba(0, 191, 255, 1)',
+                        },
+                        {
+                            text: "Equilibrate (constant V) at room temperature",
+                            fillStyle: 'rgba(144, 238, 144, 1)',
+                        },
+                    ];
+                },
+            },
         },
     },
     scales: {
@@ -47,7 +82,7 @@ const options = (variableName, variableUnit) => ({
     animation: false,
 });
 
-export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit }) {
+export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit, plotType="gold" }) {
     const [isSmooth, setIsSmooth] = useState(true);
 
     const phaseColors = {
@@ -225,7 +260,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
             </Row>
             <Row>
                 <Col style={{ height: '500px', width: '100%' }}>
-                    <Line data={data} options={options(variableName, variableUnit)} />
+                    <Line data={data} options={options(variableName, variableUnit, plotType)} />
                 </Col>
             </Row>
         </Container>
