@@ -68,3 +68,73 @@
     font-size: 1em;
     color: #333;
 }
+
+/* Bell.css */
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    flex-direction: column;
+  }
+  
+  .bell-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #facc15;
+    padding: 2rem;
+    border-radius: 1rem;
+    background-color: #fff7e6;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .bell-label {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f59e0b;
+    margin-bottom: 1rem;
+  }
+  
+  .bell {
+    cursor: pointer;
+  }
+  
+  .icon {
+    font-size: 4rem;
+    color: #facc15;
+    transition: color 0.3s ease;
+  }
+  
+  .icon:hover {
+    color: #eab308;
+  }
+  
+  .message {
+    position: absolute;
+    background-color: #facc15;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 4rem;
+    font-size: 1rem;
+    animation: fadeInOut 1s ease-in-out;
+  }
+  
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+  

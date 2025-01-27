@@ -9,6 +9,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { FaBell } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
 const ELEMENT_COLORS = {
     'H': 'White',
@@ -67,6 +69,13 @@ export default function Page() {
         setSliderValue(value); // Update sliderValue when it changes in VideoVisual
     };
 
+    const [isRinging, setIsRinging] = useState(false);
+
+    const handleRing = () => {
+      setIsRinging(true);
+      setTimeout(() => setIsRinging(false), 1000); // Animation lasts for 1 second
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -121,6 +130,30 @@ Next, atoms are heated to room temperature (298K), when kinetic energy starts af
 Subsequent steps heat the material to 1000K at the fixed volume, then adjust volume at constant temperature and pressure. This provides enough energy for atoms to overcome energy barriers that may be trapping them into less stable configurations. At this point, you may notice some new atomic configurations enabled by the extra kinetic energy that might not be the most stable at room temperature. In metallurgy, if someone wants to maintain such configurations, they quickly drench the material in water to &quot;trap&quot; the atoms in that volume and layout.
 <br /><br />
 Finally, atoms are cooled back to room temperature while allowing for the volume to vary, stabilizing the structure into its most optimal configuration in normal conditions. This process ensures your structure achieves its lowest energy, most stable self-assembled geometry at room temperature. If you don&apos;t see that in the total energy plot ring the &quot;unexpected results&quot; bell below because you might have discovered a cool new material structure!
+<br /><br />
+<div className="container">
+      <div className="bell-container">
+        <label className="bell-label">Press the Bell!</label>
+        <motion.div
+          className="bell"
+          animate={isRinging ? { rotate: [0, -15, 15, -10, 10, 0] } : {}}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          onClick={handleRing}
+        >
+          <FaBell color="#334e82" size="50" className="icon" />
+        </motion.div>
+      </div>
+      {isRinging && (
+        <motion.div
+          className="message"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+        >
+          Ding! You might have found something cool!
+        </motion.div>
+      )}
+</div>
 <br /><br />
 Repeat the video a few times while looking at the plots and notice how each property is influenced by each state of the system! Try to identify the isobaric (constant pressure), isovolumetric (constant volume), and isothermal (constant temperature) steps!
 </p>
