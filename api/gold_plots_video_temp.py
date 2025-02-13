@@ -34,7 +34,7 @@ def create_video_from_images(folder_path, output_video="output.mp4", fps=64):
         "-f", "concat",
         "-safe", "0",
         "-i", list_file,
-        "-vf", "scale='iw*min(720/iw\\,720/ih)':'ih*min(720/iw\\,720/ih)',pad=720:720:(720-iw*min(720/iw\\,720/ih))/2:(720-ih*min(720/iw\\,720/ih))/2",
+        "-vf", "scale='iw*min(720/iw\\,720/ih)':'ih*min(720/iw\\,720/ih)',pad=720:720:(720-iw*min(720/iw\\,720/ih))/2:(720-ih*min(720/iw\\,720/ih))/2:color=white",
         "-pix_fmt", "yuv420p",
         output_video
     ]
