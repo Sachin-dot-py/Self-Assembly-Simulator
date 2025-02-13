@@ -33,6 +33,10 @@ if {{ $num_frames == 0 }} {{
 
 puts "Molecule and trajectory loaded successfully."
 
+# Create a new material for water molecules (WAT) with high transparency
+material add waterTransp
+material change opacity waterTransp 0.025
+
 # Select and set up representations
 # Representation for UNL with CPK style
 set sel_unl [atomselect top "resname UNL"]
@@ -58,7 +62,7 @@ display resize 1920 1080
 # Zoom in
 display projection orthographic
 display distance -2.0
-display height 3.0
+display height 1.0
 
 # Define variables for rotation
 set rotation_step [expr {{360 / ($num_frames / 20)}}] 
