@@ -55,6 +55,17 @@ mol color Name
 mol selection "resname RES"
 mol addrep top
 
+# Representation for WAT with VDW style
+set sel_wat [atomselect top "resname WAT"]
+$sel_wat update
+mol representation VDW
+mol color Name
+mol selection "resname WAT"
+mol addrep top
+
+# Assign the transparent material to the WAT representation (rep index 2)
+mol modmaterial 2 top waterTransp
+
 # Set up the display
 display resetview
 display resize 1920 1080
