@@ -9,7 +9,7 @@ function LoadingButton() {
   useEffect(() => {
     if (isLoading) {
       // When Button is clicked
-      sendMolData().then(() => {
+      sendMolData(setLoading).then(() => {
         // setLoading(false);
       });
     }
@@ -17,16 +17,18 @@ function LoadingButton() {
 
   const handleClick = () => setLoading(true);
   if (isLoading) {
-    return <Button variant="primary" disabled>
-    <Spinner
-      as="span"
-      animation="border"
-      size="sm"
-      role="status"
-      aria-hidden="true"
-    />
-    &nbsp;Running Simulations...
-  </Button>
+    return (
+      <Button variant="primary" disabled>
+        <Spinner
+          as="span"
+          animation="border"
+          size="sm"
+          role="status"
+          aria-hidden="true"
+        />
+        &nbsp;Running Simulations...
+      </Button>
+    );
   }
   
   return (

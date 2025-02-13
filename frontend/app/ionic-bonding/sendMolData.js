@@ -1,4 +1,4 @@
-async function sendMolData() {
+async function sendMolData(setLoading) {  // <-- Added setLoading parameter
   // Get the molfile from Ketcher
   const molfile = await window.ketcher.getMolfile('v3000');
 
@@ -34,6 +34,7 @@ async function sendMolData() {
       clearInterval(interval);
       // Display an alert if the status is failed
       alert("The visualization failed. Please check your input structures and try again.");
+      setLoading(false); // <-- Re-enable the button on failure
     }
   }, 5000); // Poll every 5 seconds
 }
