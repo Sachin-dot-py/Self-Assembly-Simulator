@@ -1,5 +1,5 @@
 import threading
-from flask import Flask
+from flask import Flask, Response
 from flask_restful import Resource, Api, reqparse
 from flask import send_file, jsonify
 import subprocess
@@ -343,6 +343,15 @@ class GoldNanoparticlePlotsFileHandler(Resource):
 
         # Send the video file to the frontend
         return send_file(video_file, mimetype='video/mp4')
+    
+class Test1(Resource):
+    def get(self):
+        return open('temp/test2.bgf', 'r').read()
+    
+class Test2(Resource):
+    def get(self):
+        return Response(open('temp/test2.lammpstrj', 'r').read(), mimetype='text/plain')
+
 
 api.add_resource(HelloWorld, '/api/')
 api.add_resource(VisualFileHandler, '/api/getfiles/<string:visualId>')
@@ -352,6 +361,8 @@ api.add_resource(GoldNanoparticleVideoFileHandler, '/api/getvideo/<string:surfac
 api.add_resource(GoldNanoparticlePlotsFileHandler, '/api/getplot/<string:display>/<string:surfactant>/<string:ratio>')
 api.add_resource(Visualize, '/api/visualize')
 api.add_resource(VisualizationStatus, '/api/status/<string:visualId>')
+api.add_resource(Test1, '/api/getfiles/bgf')
+api.add_resource(Test2, '/api/getfiles/lammpstrj')
 
 if __name__ == '__main__':
     port = 8000  # Default port
