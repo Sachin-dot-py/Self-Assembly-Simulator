@@ -52,7 +52,7 @@ print                ==========================================
 print                .
 
 thermo_style         custom step temp press pe ke etotal evdwl ecoul epair ebond eangle edihed eimp emol elong etail enthalpy ecouple econserve vol density
-dump                 1 all custom 5 ${sname}.minimization.lammpstrj id type xu yu zu vx vy vz
+dump                 1 all custom 5 ${sname}.minimization.lammpstrj id type x y z vx vy vz
 thermo               5
 min_style            sd
 minimize             0 0 10000 50000
@@ -71,7 +71,7 @@ print                .
 velocity             all create 0.0 12345678 dist uniform
 thermo               100
 fix                  3 all nvt temp 1.0 298.0 100.0
-dump                 1 all custom 100 ${sname}.heat1.lammpstrj id type xu yu zu vx vy vz
+dump                 1 all custom 100 ${sname}.heat1.lammpstrj id type x y z vx vy vz
 run                  10000
 unfix                3
 unfix                deform_box
@@ -84,7 +84,7 @@ print                =================================================
 print                .
 
 fix                  2 all npt temp 298.0 298.0 100.0 x 1.0 1.0 250.0 y 1.0 1.0 250.0
-dump                 1 all custom 100 ${sname}.pressure1.lammpstrj id type xu yu zu vx vy vz
+dump                 1 all custom 100 ${sname}.pressure1.lammpstrj id type x y z vx vy vz
 run                  10000
 unfix                2
 undump               1
@@ -96,7 +96,7 @@ print                =====================================
 print                .
 
 fix                  3 all nvt temp 298.0 1000.0 100.0
-dump                 1 all custom 100 ${sname}.heat2.lammpstrj id type xu yu zu vx vy vz
+dump                 1 all custom 100 ${sname}.heat2.lammpstrj id type x y z vx vy vz
 run                  10000
 unfix                3
 undump               1
@@ -108,7 +108,7 @@ print                =================================================
 print                .
 
 fix                  2 all npt temp 1000.0 1000.0 100.0 x 1.0 1.0 250.0 y 1.0 1.0 250.0
-dump                 1 all custom 100 ${sname}.pressure2.lammpstrj id type xu yu zu vx vy vz
+dump                 1 all custom 100 ${sname}.pressure2.lammpstrj id type x y z vx vy vz
 run                  10000
 unfix                2
 undump               1
@@ -120,7 +120,7 @@ print                =====================================
 print                .
 
 fix                  3 all npt temp 1000.0 298.0 100.0 x 1.0 1.0 250.0 y 1.0 1.0 250.0
-dump                 1 all custom 100 ${sname}.cool.lammpstrj id type xu yu zu vx vy vz
+dump                 1 all custom 100 ${sname}.cool.lammpstrj id type x y z vx vy vz
 run                  10000
 unfix                3
 undump               1
@@ -132,7 +132,7 @@ print                =====================================
 print                .
 
 fix                  3 all nvt temp 298.0 298.0 100.0
-dump                 1 all custom 100 ${sname}.equilibrate.lammpstrj id type xu yu zu vx vy vz
+dump                 1 all custom 100 ${sname}.equilibrate.lammpstrj id type x y z vx vy vz
 run                  10000
 unfix                3
 undump               1
