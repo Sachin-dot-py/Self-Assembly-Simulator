@@ -86,12 +86,22 @@ export default function ThreeDmolViewer() {
       });
     }
     // --------------------------------------------------------
-
+    const ionColor = (element) => {
+      const colors = ["red", "blue", "green", "yellow", "purple", "orange", "cyan", "magenta"];
+      try{
+        const atom = parseInt(element.atom);
+        return colors[atom % colors.length];
+      } catch (e) {
+        console.error(e);
+        return "gray";
+      }
+    };
+    
     // Set up the VDW representation
     model.setStyle({}, {
       sphere: {
-        radius: 0.5, // Adjust radius to approximate VDW radii
-        colorscheme: 'Jmol'
+        radius: 0.5, // Adjust radius to approximate VDW radii,
+        colorfunc: ionColor
       }
     });
 
