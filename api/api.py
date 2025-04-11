@@ -346,11 +346,15 @@ class GoldNanoparticlePlotsFileHandler(Resource):
     
 class Test1(Resource):
     def get(self):
-        return open('temp/test2.bgf', 'r').read()
+        return open('temp/test3.bgf', 'r').read()
     
 class Test2(Resource):
     def get(self):
-        return Response(open('temp/test2.lammpstrj', 'r').read(), mimetype='text/plain')
+        return Response(open('temp/test3.lammpstrj', 'r').read(), mimetype='text/plain')
+    
+class Test3(Resource):
+    def get(self):
+        return Response(open('index.html', 'r').read(), mimetype='text/plain')
 
 
 api.add_resource(HelloWorld, '/api/')
@@ -363,6 +367,7 @@ api.add_resource(Visualize, '/api/visualize')
 api.add_resource(VisualizationStatus, '/api/status/<string:visualId>')
 api.add_resource(Test1, '/api/getfiles/bgf')
 api.add_resource(Test2, '/api/getfiles/lammpstrj')
+api.add_resource(Test3, '/api/getfiles/indexhtml')
 
 if __name__ == '__main__':
     port = 8000  # Default port

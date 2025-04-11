@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NGL LAMMPS Trajectory Viewer</title>
+  <!-- Include NGL from a CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/ngl@2.0.0-dev.39/dist/ngl.js"></script>
+  <style>
+    /* Set viewport dimensions */
+    #viewport {
+      width: 800px;
+      height: 600px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewport"></div>
+  <script>
+    // Immediately invoked async function to fetch and load the LAMMPS trajectory
+    (async function() {
+      try {
+        // Fetch the .lammpstrj text
+        const response = await fetch('http://127.0.0.1:8000/api/getfiles/lammpstrj');
+        const lammpstrjText = await response.text();
+
+        // Create a Blob from the text and generate a URL for NGL
+        const blob = new Blob([lammpstrjText], { type: 'text/plain' });
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Create an NGL Stage object with the container "viewport"
+        const stage = new NGL.Stage("viewport");
+
+        // Load the file with the extension set to "lammpstrj"
+        stage.loadFile(blobUrl, { ext: "lammpstrj" }).then(function(component) {
+          // Add a representation (adjust as needed)
+          component.addRepresentation("ball+stick");
+          // Fit the view to the component
+          stage.autoView();
+        });
+      } catch (error) {
+        console.error("Error loading LAMMPS trajectory:", error);
+      }
+    })();
+  </script>
+</body>
+</html>
