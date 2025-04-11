@@ -3,6 +3,16 @@ const nextConfig = {
   rewrites: async () => {
     const isProduction = process.env.NODE_ENV === 'production';
     const isStaging = process.env.NODE_ENV === 'staging';
+
+    if (process.env.DOCKER_ENABLED === 'true') {
+      // If Docker is enabled, set the API URL to the Docker container's address
+      return [
+        {
+          source: '/api/:path*',
+          destination: `${BACKEND_URL}/api/:path*`, // Docker container API URL
+        },
+      ];
+    }
     
     // Default to the production API for all environments unless overridden
     let apiUrl = 'http://127.0.0.1:8000'; // Production API URL
@@ -25,9 +35,9 @@ const nextConfig = {
   // For Docker
   // output: "standalone",
   // Base URL for frontend app, used for setting custom environment variables
-  env: {
-    BASE_API_URL: process.env.NODE_ENV === 'staging' ? 'http://127.0.0.1:8001' : 'http://127.0.0.1:8000',
-  }
+  // env: {
+  //   BASE_API_URL: process.env.NODE_ENV === 'staging' ? 'http://127.0.0.1:8001' : 'http://127.0.0.1:8000',
+  // }
 };
 
 export default nextConfig;
