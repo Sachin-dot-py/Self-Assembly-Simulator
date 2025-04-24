@@ -7,9 +7,36 @@ import os
 import uuid
 import sys
 import re
+from queue import Queue
+from collections import deque
+from datetime import datetime
 
 app = Flask(__name__)
 api = Api(app)
+job_queue = Queue()
+pending_jobs = deque()                # holds visualId in submission order
+job_start_times = {}                  # visualId → datetime
+
+# ‣ Worker function that processes jobs one at a time
+def simulation_worker():
+    while True:
+        visual_dir, temperature, visual_id = job_queue.get()  # blocks until an item is available
+        # once we pull it for processing, pop it off the deque
+        if pending_jobs and pending_jobs[0] == visual_id:
+            pending_jobs.popleft()
+        try:
+            Visualize.run_simulation(visual_dir, temperature, visual_id)
+        except Exception as e:
+            app.logger.error(f"Error during simulation for {visual_id}: {e}")
+            # mark the job as failed in its status file
+            with open(os.path.join(visual_dir, 'status.txt'), 'w') as f:
+                f.write('failed')
+        finally:
+            job_queue.task_done()
+
+# ‣ Start exactly one background worker thread on import
+worker = threading.Thread(target=simulation_worker, daemon=True)
+worker.start()
 
 # For CORS
 @app.after_request
@@ -152,17 +179,25 @@ class Visualize(Resource):
             with open(molfile_path, 'w') as f:
                 f.write(args['molfile'])
 
-            # Run the visualization process in a background thread
-            thread = threading.Thread(target=self.run_simulation, args=(visual_dir, args['temperature'], visual_id))
-            thread.start()
+            # record timestamp & enqueue
+            job_start_times[visual_id] = datetime.utcnow()
+            pending_jobs.append(visual_id)
+            job_queue.put((visual_dir, args['temperature'], visual_id))
+            position = len(pending_jobs)       # 1-indexed
 
-            # Return the visualId to the client immediately
-            return jsonify({'visualId': visual_id})
+            # ‣ Return where they are in line (1 = next to run)
+            position = job_queue.qsize()
+            return jsonify({
+                'visualId': visual_id,
+                'position': position,
+                'startTime': job_start_times[visual_id].isoformat() + 'Z'
+            })
         except Exception as e:
             app.logger.error(f"Error occurred: {str(e)}")
             return jsonify({'error': 'Internal Server Error', 'message': str(e)}), 500
 
-    def run_simulation(self, visual_dir, temperature, visual_id):
+    @staticmethod
+    def run_simulation(visual_dir, temperature, visual_id):
         try:
             visual_dir = os.path.join('temp', visual_id)
             
@@ -267,15 +302,30 @@ class Visualize(Resource):
 class VisualizationStatus(Resource):
     def get(self, visualId):
         try:
+            # Determine status
             visual_dir = os.path.join('temp', visualId)
             status_file_path = os.path.join(visual_dir, 'status.txt')
-
             if os.path.exists(status_file_path):
-                with open(status_file_path, 'r') as status_file:
-                    status = status_file.read().strip()
-                return jsonify({'status': status})
+                with open(status_file_path, 'r') as f:
+                    status = f.read().strip()
             else:
-                return jsonify({'status': 'in_progress'})
+                status = 'in_progress'
+
+            # Compute queue position
+            if visualId in pending_jobs:
+                position = pending_jobs.index(visualId) + 1
+            else:
+                position = 0
+
+            # Retrieve start time
+            start_time = job_start_times.get(visualId)
+            startTimeStr = start_time.isoformat() + 'Z' if start_time else None
+
+            return jsonify({
+                'status': status,
+                'position': position,
+                'startTime': startTimeStr
+            })
         except Exception as e:
             app.logger.error(f"Error occurred while checking status: {str(e)}")
             return jsonify({'error': 'Internal Server Error', 'message': str(e)}), 500
