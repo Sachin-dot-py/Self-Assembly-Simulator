@@ -52,7 +52,7 @@ def convert_mdl_to_bgf(mdl_filename):
 
     # Step 1: Convert MDL to BGF using Open Babel
     subprocess.run(
-        ['/root/anaconda3/bin/obabel', '-imdl', mdl_filename, '-obgf', '-O', bgf_filename],
+        ['/usr/bin/obabel', '-imdl', mdl_filename, '-obgf', '-O', bgf_filename],
         check=True
     )
     print(f"Converted {mdl_filename} to {bgf_filename}.")
@@ -65,7 +65,7 @@ def convert_mdl_to_bgf(mdl_filename):
 
     # Center the BGF
     subprocess.run(
-        ['/root/ATLAS-toolkit/scripts/centerBGF.pl', '-b', bgf_filename, '-f', 'UFF'],
+        ['/app/ATLAS-toolkit/scripts/centerBGF.pl', '-b', bgf_filename, '-f', 'UFF'],
         check=True
     )
 
@@ -205,7 +205,7 @@ class Visualize(Resource):
             convert_mdl_to_bgf(os.path.join(visual_dir, 'input.mol'))
 
             # Step 2: Run the createLammpsInput.pl script with the .bgf file and merge generated in.lammps with template in.lammps
-            create_lammps_input_command = ['/root/ATLAS-toolkit/scripts/createLammpsInput.pl', '-b', 'input.bgf', '-f', 'UFF']
+            create_lammps_input_command = ['/app/ATLAS-toolkit/scripts/createLammpsInput.pl', '-b', 'input.bgf', '-f', 'UFF']
             subprocess.run(create_lammps_input_command, cwd=visual_dir, check=True)
 
             with open(os.path.join(visual_dir, 'in.lammps'), 'r') as f:
@@ -236,7 +236,7 @@ class Visualize(Resource):
                     os.remove(file_path)
 
             # Step 4: Run LAMMPS with the given temperature
-            lammps_command = ['mpirun', '--allow-run-as-root', '/root/lammps/build/lmp', '-in', 'in.lammps', '-var', 'rtemp', str(temperature)]
+            lammps_command = ['mpirun', '--allow-run-as-root', 'lmp', '-in', 'in.lammps', '-var', 'rtemp', str(temperature)]
             subprocess.run(lammps_command, cwd=visual_dir, check=True)
 
             # Step 5: Rename lammps.visualize.lammpstrj to master.lammpstrj
