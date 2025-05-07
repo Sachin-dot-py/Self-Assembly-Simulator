@@ -19,12 +19,10 @@ RUN cd /tmp/vmd-1.9.3 && \
     rm -rf /tmp/vmd-1.9.3
 ENV PATH="/usr/local/vmd/bin:${PATH}"
 
-# Set up logs directory for PM2
-RUN mkdir -p /app/.pm2 && \
-    chown -R root:root /app/.pm2
-ENV PM2_HOME=/app/.pm2
-
 # 4) Install PM2 globally so we can run both processes
+USER root
+RUN rm -rf /.pm2 && ln -s /app/api/temp/.pm2 /.pm2
+ENV PM2_HOME=/app/api/temp/.pm2
 RUN npm install -g pm2
 
 # 5) Bring in PM2 ecosystem file
@@ -51,4 +49,4 @@ EXPOSE 3000 8000
 
 # 11) Launch with PM2
 WORKDIR /app
-CMD ["pm2-runtime", "ecosystem.config.js", "--env", "production"]
+CMD ["pm2-runtime", "--pm2-home", "/app/api/temp/.pm2", "ecosystem.config.js", "--env", "production"]

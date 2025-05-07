@@ -9,9 +9,9 @@ module.exports = {
         env: {
           FLASK_ENV: 'production'
         },
-        log_file: '/app/logs/production-flask.log',
-        error_file: '/app/logs/production-flask.error.log',
-        out_file: '/app/logs/production-flask.out.log'
+        log_file: '/app/api/temp/logs/production-flask.log',
+        error_file: '/app/api/temp/logs/production-flask.error.log',
+        out_file: '/app/api/temp/logs/production-flask.out.log'
       },
       {
         name: 'production-nextjs',
@@ -23,9 +23,9 @@ module.exports = {
           PORT: 3000,
           BACKEND_URL: 'http://localhost:8000'
         },
-        log_file: '/app/logs/production-nextjs.log',
-        error_file: '/app/logs/production-nextjs.error.log',
-        out_file: '/app/logs/production-nextjs.out.log'
+        log_file: '/app/api/temp/logs/production-nextjs.log',
+        error_file: '/app/api/temp/logs/production-nextjs.error.log',
+        out_file: '/app/api/temp/logs/production-nextjs.out.log'
       }
     ]
   };
