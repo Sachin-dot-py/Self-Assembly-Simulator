@@ -1,0 +1,220 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: '5'
+    nersc.gov/collab_uids: ''
+    nersc.gov/gid: '105510'
+    nersc.gov/gids: 96414,103905,105510
+    nersc.gov/roles: user
+    nersc.gov/uid: '105510'
+    nersc.gov/username: sachin
+  creationTimestamp: '2025-05-06T15:42:00Z'
+  generation: 5
+  labels:
+    workload.user.cattle.io/workloadselector: apps.deployment-self-assembly-app
+  managedFields:
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:labels:
+            .: {}
+            f:workload.user.cattle.io/workloadselector: {}
+        f:spec:
+          f:progressDeadlineSeconds: {}
+          f:replicas: {}
+          f:revisionHistoryLimit: {}
+          f:selector: {}
+          f:strategy:
+            f:rollingUpdate:
+              .: {}
+              f:maxSurge: {}
+              f:maxUnavailable: {}
+            f:type: {}
+          f:template:
+            f:metadata:
+              f:annotations:
+                f:cattle.io/timestamp: {}
+              f:labels:
+                .: {}
+                f:workload.user.cattle.io/workloadselector: {}
+              f:namespace: {}
+            f:spec:
+              f:containers:
+                k:{"name":"self-assembly-production"}:
+                  .: {}
+                  f:image: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:resources: {}
+                  f:securityContext:
+                    .: {}
+                    f:allowPrivilegeEscalation: {}
+                    f:capabilities:
+                      .: {}
+                      f:add: {}
+                      f:drop: {}
+                    f:privileged: {}
+                    f:readOnlyRootFilesystem: {}
+                    f:runAsNonRoot: {}
+                    f:runAsUser: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+                  f:volumeMounts:
+                    .: {}
+                    k:{"mountPath":"/app/api/temp"}:
+                      .: {}
+                      f:mountPath: {}
+                      f:name: {}
+              f:dnsPolicy: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext:
+                .: {}
+                f:fsGroup: {}
+              f:terminationGracePeriodSeconds: {}
+              f:volumes:
+                .: {}
+                k:{"name":"temp"}:
+                  .: {}
+                  f:hostPath:
+                    .: {}
+                    f:path: {}
+                    f:type: {}
+                  f:name: {}
+      manager: agent
+      operation: Update
+      time: '2025-05-06T15:51:58Z'
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            f:deployment.kubernetes.io/revision: {}
+        f:status:
+          f:conditions:
+            .: {}
+            k:{"type":"Available"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:reason: {}
+              f:status: {}
+              f:type: {}
+            k:{"type":"Progressing"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:reason: {}
+              f:status: {}
+              f:type: {}
+            k:{"type":"ReplicaFailure"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:reason: {}
+              f:status: {}
+              f:type: {}
+          f:observedGeneration: {}
+          f:unavailableReplicas: {}
+      manager: kube-controller-manager
+      operation: Update
+      subresource: status
+      time: '2025-05-06T15:52:00Z'
+  name: app
+  namespace: self-assembly
+  uid: bc47b749-a6e6-4d88-8852-4c208886356c
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.deployment-self-assembly-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        cattle.io/timestamp: '2025-05-06T15:51:58Z'
+        nersc.gov/collab_uids: ''
+        nersc.gov/gid: '105510'
+        nersc.gov/gids: 96414,103905,105510
+        nersc.gov/roles: user
+        nersc.gov/uid: '105510'
+        nersc.gov/username: sachin
+      creationTimestamp: null
+      labels:
+        workload.user.cattle.io/workloadselector: apps.deployment-self-assembly-app
+      namespace: self-assembly
+    spec:
+      containers:
+        - image: registry.nersc.gov/self-assembly/self-assembly-production:latest
+          imagePullPolicy: Always
+          name: self-assembly-production
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - NET_BIND_SERVICE
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 105510
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /app/api/temp
+              name: temp
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 105510
+        runAsGroup: 105510
+        runAsUser: 105510
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - hostPath:
+            path: /global/cfs/cdirs/m4537/sachin/self-assembly/temp
+            type: Directory
+          name: temp
+status:
+  conditions:
+    - lastTransitionTime: '2025-05-06T15:42:00Z'
+      lastUpdateTime: '2025-05-06T15:42:00Z'
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: 'False'
+      type: Available
+    - lastTransitionTime: '2025-05-06T15:42:00Z'
+      lastUpdateTime: '2025-05-06T15:42:00Z'
+      message: >-
+        admission webhook "validating-webhook.openpolicyagent.org" denied the
+        request: NGF-001: hostPath type must be a Directory or File for NERSC
+        Global Filesystem mounts, NGF-006: NERSC Global Filesystem mounts
+        require runAsUser to be specified in the securityContext, NGF-008: NERSC
+        Global Filesystem mounts require fsGroup to be specified in the
+        securityContext, NGF-010: runAsUser uid mismatch, NGF-011: fsGroup gid
+        mismatch, SEC-001: drop: ALL must be specified in every container
+      reason: FailedCreate
+      status: 'True'
+      type: ReplicaFailure
+    - lastTransitionTime: '2025-05-06T15:52:00Z'
+      lastUpdateTime: '2025-05-06T15:52:00Z'
+      message: ReplicaSet "app-764d949f87" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: 'False'
+      type: Progressing
+  observedGeneration: 5
+  unavailableReplicas: 2
