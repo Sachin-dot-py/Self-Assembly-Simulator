@@ -215,9 +215,9 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const visibleStepsSlice = filteredSteps.slice(0, maxVisibleIndex);
     const visibleColorsSlice = filteredColors.slice(0, maxVisibleIndex);
 
-    const coords = visibleStepsSlice.map((el, index) => [el, visibleVariableDataSlice[index]]);
-    const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
-    const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));
+    // const coords = visibleStepsSlice.map((el, index) => [el, visibleVariableDataSlice[index]]);
+    // const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
+    // const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));
 
     const data = {
         labels: visibleStepsSlice,
@@ -230,16 +230,16 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 tension: 0.4,
                 order: 1,
             },
-            {
-                label: "Polynomial Fit",
-                data: polynomialFitData.map(point => point.y),
-                borderColor: "rgba(64, 64, 64, 1)",
-                borderDash: [5, 5],
-                fill: false,
-                pointRadius: 0,
-                tension: 0.4,
-                order: 0
-            }
+            // {
+            //     label: "Polynomial Fit",
+            //     data: polynomialFitData.map(point => point.y),
+            //     borderColor: "rgba(64, 64, 64, 1)",
+            //     borderDash: [5, 5],
+            //     fill: false,
+            //     pointRadius: 0,
+            //     tension: 0.4,
+            //     order: 0
+            // }
         ]
     };
 
