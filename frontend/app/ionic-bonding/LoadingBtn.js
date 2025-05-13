@@ -82,7 +82,7 @@ export default function LoadingButton() {
         <div style={{ marginBottom:'0.5rem' }}>
           <strong>Position in queue:</strong> {position ?? '…'}<br/>
           <strong>Submitted at:</strong> {startTime ? fmtTime(startTime) : '…'}<br/>
-          <strong>Elapsed:</strong> {fmtDur(elapsed)}<br/>
+          {/* <strong>Elapsed:</strong> {fmtDur(elapsed)}<br/> */}
           <strong>Est. wait:</strong> {estWait()}
         </div>
         <Button variant="primary" disabled>
