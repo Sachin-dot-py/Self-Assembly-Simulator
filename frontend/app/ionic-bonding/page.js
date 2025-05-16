@@ -14,6 +14,10 @@ import { FaFlask, FaAtom, FaPlay } from 'react-icons/fa';
 export default function EditorPage() {
   const [isClient, setIsClient] = useState(false);
 
+  const openTutorial = () => {
+    window.open('https://youtu.be/FN8xCqaLB3g', '_blank', 'noopener,noreferrer');
+  };
+
   useEffect(() => {
     // Ensure this code runs only on the client
     setIsClient(true);
@@ -72,7 +76,7 @@ export default function EditorPage() {
                 </div>
               </div>
             </Card.Text>
-            <Button variant="primary" style={{ marginBottom: '1rem' }}>Watch the demo video</Button>
+            <Button variant="primary" style={{ marginBottom: '1rem' }} onClick={openTutorial}>Watch the demo video</Button>
           </Card.Body>
         </Card>
       </center>
