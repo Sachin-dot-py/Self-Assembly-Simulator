@@ -1,5 +1,9 @@
 # Self-Assembly Simulation Project
 
+This web app is deployed using Kubernetes & Docker on SPIN at NERSC (National Energy Research Scientific Computing Center)
+
+Use it live: [https://self-assembly-sim.ucsd.edu/](https://self-assembly-sim.ucsd.edu/)
+
 ## Installation
 
 - [Install](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) `Node.js` and `npm`
