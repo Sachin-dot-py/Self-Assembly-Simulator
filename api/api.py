@@ -107,13 +107,12 @@ def update_bgf_with_sed(bgf_filename, atom_charges):
 
     print(f"Updated {bgf_filename} with correct charges.")
 
-# ▸ Simple credentials store --------------------------------------------------
-ACCESS_FILE = os.path.join('temp', 'access.csv')
 
 def is_valid_password(password: str) -> bool:
     """
     Return True if *password* is present in access.csv, regardless of master status.
     """
+    ACCESS_FILE = os.path.join('temp', 'access.csv')
     try:
         with open(ACCESS_FILE, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -129,6 +128,7 @@ def is_master_password(password: str) -> bool:
     """
     Return True if *password* is present in access.csv AND the master column is truthy.
     """
+    ACCESS_FILE = os.path.join('temp', 'access.csv')
     try:
         with open(ACCESS_FILE, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -149,6 +149,7 @@ class Login(Resource):
     """
 
     def post(self):
+        ACCESS_FILE = os.path.join('temp', 'access.csv')
         try:
             parser = reqparse.RequestParser()
             parser.add_argument('name', type=str, required=True, help='User name')
@@ -172,8 +173,8 @@ class Login(Resource):
     def get(self):
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument('password', type=str, required=True, help='Password')
-            parser.add_argument('master', type=bool, required=False, default=False)
+            parser.add_argument('password', type=str, required=True, location='args', help='Password')
+            parser.add_argument('master', type=bool, required=False, location='args', default=False)
             args = parser.parse_args()
 
             if args['master']:
@@ -192,6 +193,7 @@ class PasswordList(Resource):
     GET /passwords – return every credential in temp/access.csv.
     """
     def get(self):
+        ACCESS_FILE = os.path.join('temp', 'access.csv')
         parser = reqparse.RequestParser()
         parser.add_argument('password', type=str, required=True, help='A Master Password')
         args = parser.parse_args()
