@@ -153,7 +153,11 @@ class Login(Resource):
             parser = reqparse.RequestParser()
             parser.add_argument('name', type=str, required=True, help='User name')
             parser.add_argument('password', type=str, required=True, help='Password')
+            parser.add_argument('masterpassword', type=str, required=True, help='Master Password')
             args = parser.parse_args()
+
+            if not is_master_password(args['password']):
+                return {'error': 'Unauthorized'}, 401   
 
             # Append the new credentials as non‑master
             with open(ACCESS_FILE, 'a', newline='') as csvfile:
@@ -188,6 +192,13 @@ class PasswordList(Resource):
     GET /passwords – return every credential in temp/access.csv.
     """
     def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('password', type=str, required=True, help='A Master Password')
+        args = parser.parse_args()
+
+        if not is_master_password(args['password']):
+            return {'error': 'Unauthorized'}, 401   
+
         try:
             records = []
             if os.path.exists(ACCESS_FILE):
