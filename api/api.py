@@ -157,7 +157,7 @@ class Login(Resource):
             parser.add_argument('masterpassword', type=str, required=True, help='Master Password')
             args = parser.parse_args()
 
-            if not is_master_password(args['password']):
+            if not is_master_password(args['masterpassword']):
                 return {'error': 'Unauthorized'}, 401   
 
             # Append the new credentials as non‑master
@@ -173,8 +173,8 @@ class Login(Resource):
     def get(self):
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument('password', type=str, required=True, location='args', help='Password')
-            parser.add_argument('master', type=bool, required=False, location='args', default=False)
+            parser.add_argument('password', type=str, required=True, help='Password')
+            parser.add_argument('master', type=bool, required=False, default=False)
             args = parser.parse_args()
 
             if args['master']:

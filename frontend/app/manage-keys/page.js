@@ -27,7 +27,7 @@ export default function ManageKeys() {
   const fetchKeys = async () => {
     try {
       const r = await fetch(
-        `/api/passwords?password=${encodeURIComponent(accessKey)}`
+        `/api/passwords?password=${encodeURIComponent(localStorage.getItem('ACCESS_KEY'))}`
       );
       if (r.status === 401) {
         setShowLoginForm(true);
@@ -81,7 +81,7 @@ export default function ManageKeys() {
       await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName, password: newPass, masterpassword: accessKey })
+        body: JSON.stringify({ name: newName, password: newPass, masterpassword: localStorage.getItem('ACCESS_KEY') })
       });
       setNewName('');
       setNewPass('');
