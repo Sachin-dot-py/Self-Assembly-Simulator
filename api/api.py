@@ -173,8 +173,8 @@ class Login(Resource):
     def get(self):
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument('password', type=str, required=True, help='Password')
-            parser.add_argument('master', type=bool, required=False, default=False)
+            parser.add_argument('password', type=str, required=True, help='Password', location='args')
+            parser.add_argument('master', type=bool, required=False, default=False, location='args')
             args = parser.parse_args()
 
             if args['master']:
@@ -195,7 +195,7 @@ class PasswordList(Resource):
     def get(self):
         ACCESS_FILE = os.path.join('temp', 'access.csv')
         parser = reqparse.RequestParser()
-        parser.add_argument('password', type=str, required=True, help='A Master Password')
+        parser.add_argument('password', type=str, required=True, help='A Master Password', location='args')
         args = parser.parse_args()
 
         if not is_master_password(args['password']):
