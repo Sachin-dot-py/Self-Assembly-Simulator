@@ -9,68 +9,7 @@ import Image from 'next/image';
 import { FaPlay, FaInfoCircle } from 'react-icons/fa';
 import Footer from './components/Footer';
 
-const ACCESS_KEY = "toolAccess";
-const EXPIRATION_DAYS = 3; // set the expiration duration in days
-
 export default function Home() {
-    const [accessGranted, setAccessGranted] = useState(true);
-    const [password, setPassword] = useState("");
-  
-    // Check localStorage for saved access on component mount
-    useEffect(() => {
-      const storedAccess = localStorage.getItem(ACCESS_KEY);
-      if (storedAccess) {
-        const { expiration } = JSON.parse(storedAccess);
-        // If current time is less than expiration, grant access
-        if (new Date().getTime() < expiration) {
-          setAccessGranted(true);
-        } else {
-          // Otherwise remove expired token
-          localStorage.removeItem(ACCESS_KEY);
-        }
-      } else {
-        setAccessGranted(false);
-      }
-    }, []);
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-
-      if (password === "Self-Assembly") { // Password is a formality, doesn't have to be secure
-        setAccessGranted(true);
-        const expiration = new Date().getTime() + EXPIRATION_DAYS * 24 * 60 * 60 * 1000;
-        localStorage.setItem(ACCESS_KEY, JSON.stringify({ expiration }));
-      } else {
-        alert("Incorrect password");
-      }
-    };
-
-    if (!accessGranted) {
-        return (
-            <div className={styles.accessContainer}>
-                <Card className={styles.accessCard}>
-                    <Card.Body>
-                        <Card.Title>Tool in Development</Card.Title>
-                        <Card.Text>
-                            This tool is still being developed. Enter password to use. If you want to request access, contact{' '}
-                            <a href="mailto:saramanathan@ucsd.edu">saramanathan@ucsd.edu</a>.
-                        </Card.Text>
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                type="password"
-                                placeholder="Enter password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className={styles.passwordInput}
-                            />
-                            <Button type="submit" className={styles.submitButton}>Submit</Button>
-                        </form>
-                    </Card.Body>
-                </Card>
-            </div>
-        );
-    }
-
     return (
         <>
             <Navigation />

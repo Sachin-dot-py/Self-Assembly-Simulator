@@ -10,6 +10,7 @@ import re
 from queue import Queue
 from collections import deque
 from datetime import datetime
+import csv
 
 app = Flask(__name__)
 api = Api(app)
@@ -105,6 +106,103 @@ def update_bgf_with_sed(bgf_filename, atom_charges):
         subprocess.run(sed_command, shell=True, check=True)
 
     print(f"Updated {bgf_filename} with correct charges.")
+
+# ▸ Simple credentials store --------------------------------------------------
+ACCESS_FILE = os.path.join('temp', 'access.csv')
+
+def is_valid_password(password: str) -> bool:
+    """
+    Return True if *password* is present in access.csv, regardless of master status.
+    """
+    try:
+        with open(ACCESS_FILE, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row['password'] == password:
+                    return True
+    except FileNotFoundError:
+        pass
+    return False
+
+
+def is_master_password(password: str) -> bool:
+    """
+    Return True if *password* is present in access.csv AND the master column is truthy.
+    """
+    try:
+        with open(ACCESS_FILE, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if (
+                    row['password'] == password
+                    and row['master'].strip().lower() in ('1', 'true', 'yes')
+                ):
+                    return True
+    except FileNotFoundError:
+        pass
+    return False
+
+class Login(Resource):
+    """
+    POST /login  – register a new (non‑master) password.
+    GET  /login  – validate a password; if ?master=true is supplied, require master status.
+    """
+
+    def post(self):
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument('name', type=str, required=True, help='User name')
+            parser.add_argument('password', type=str, required=True, help='Password')
+            args = parser.parse_args()
+
+            # Append the new credentials as non‑master
+            with open(ACCESS_FILE, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow([args['name'], args['password'], 'false'])
+
+            return {'success': True}, 201
+        except Exception as e:
+            app.logger.error(f"Error in /login POST: {e}")
+            return {'success': False, 'error': str(e)}, 500
+
+    def get(self):
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument('password', type=str, required=True, help='Password')
+            parser.add_argument('master', type=bool, required=False, default=False)
+            args = parser.parse_args()
+
+            if args['master']:
+                valid = is_master_password(args['password'])
+            else:
+                valid = is_valid_password(args['password'])
+
+            return {'valid': valid}, 200
+        except Exception as e:
+            app.logger.error(f"Error in /login GET: {e}")
+            return {'error': str(e)}, 500
+
+
+class PasswordList(Resource):
+    """
+    GET /passwords – return every credential in temp/access.csv.
+    """
+    def get(self):
+        try:
+            records = []
+            if os.path.exists(ACCESS_FILE):
+                with open(ACCESS_FILE, newline='') as csvfile:
+                    reader = csv.DictReader(csvfile)
+                    for row in reader:
+                        records.append({
+                            'name': row.get('name'),
+                            'password': row.get('password'),
+                            'master': row.get('master')
+                        })
+            return records, 200
+        except Exception as e:
+            app.logger.error(f"Error in /passwords GET: {e}")
+            return {'error': str(e)}, 500
 
 class HelloWorld(Resource):
     def get(self):
@@ -403,6 +501,8 @@ api.add_resource(GoldNanoparticleVideoFileHandler, '/api/getvideo/<string:surfac
 api.add_resource(GoldNanoparticlePlotsFileHandler, '/api/getplot/<string:display>/<string:surfactant>/<string:ratio>')
 api.add_resource(Visualize, '/api/visualize')
 api.add_resource(VisualizationStatus, '/api/status/<string:visualId>')
+api.add_resource(Login, '/api/login')
+api.add_resource(PasswordList, '/api/passwords')
 
 if __name__ == '__main__':
     port = 8000  # Default port

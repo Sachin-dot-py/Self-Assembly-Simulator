@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
+import { FaLock } from 'react-icons/fa';
 
 export default function LoadingButton() {
   const [visualId, setVisualId]       = useState(null);
@@ -9,6 +12,19 @@ export default function LoadingButton() {
   const [startTime, setStartTime]     = useState(null);
   const [elapsed, setElapsed]         = useState(0);        // ms
   const [status, setStatus]           = useState('');       // in_progress, completed, failed
+
+  const [loggedIn, setLoggedIn]         = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [loginError, setLoginError]       = useState(null);
+
+  //  Check localStorage for saved password
+  useEffect(() => {
+    const saved = localStorage.getItem('ACCESS_KEY');
+    if (saved) {
+      setLoggedIn(true);
+    }
+  }, []);
 
   // Kick off submission
   useEffect(() => {
@@ -59,7 +75,30 @@ export default function LoadingButton() {
     return () => clearInterval(poller);
   }, [isLoading]);
 
-  const handleClick = () => setLoading(true);
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoginError(null);
+
+    try {
+      const res = await fetch(`/api/login?password=${encodeURIComponent(passwordInput)}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      const data = await res.json();
+      if (data.valid) {
+        localStorage.setItem('ACCESS_KEY', passwordInput);
+        setLoggedIn(true);
+        setShowLoginForm(false);
+        setPasswordInput('');
+      } else {
+        setLoginError('Incorrect password, please try again.');
+      }
+    } catch (err) {
+      setLoginError('Error contacting server.');
+    }
+  };
+
+  const handleVisualizeClick = () => setLoading(true);
 
   // format helpers
   const fmtTime = d => new Date(d).toLocaleTimeString();
@@ -76,13 +115,54 @@ export default function LoadingButton() {
     return `${m}m ${s}s`;
   };
 
+  // -------------------------------------------------------------------------
+  //  Render – gate visualize UI behind login
+  // -------------------------------------------------------------------------
+  if (!loggedIn) {
+    // not yet authenticated
+    if (!showLoginForm) {
+      return (
+        <Button variant="secondary" onClick={() => setShowLoginForm(true)}>
+          <FaLock style={{ marginRight:'0.35rem' }}/>
+          Login&nbsp;to&nbsp;Visualize
+        </Button>
+      );
+    }
+
+    // show small inline login form
+    return (
+      <Form onSubmit={handleLoginSubmit} style={{ maxWidth:'260px', margin:'0 auto' }}>
+        <InputGroup className="mb-2">
+          <InputGroup.Text><FaLock/></InputGroup.Text>
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            value={passwordInput}
+            onChange={e => setPasswordInput(e.target.value)}
+            autoFocus
+          />
+        </InputGroup>
+        {loginError && <div style={{ color:'red', fontSize:'0.9rem' }}>{loginError}</div>}
+        <Button variant="primary" type="submit" size="sm">
+          Submit
+        </Button>{' '}
+        <Button variant="link" size="sm" onClick={() => { setShowLoginForm(false); setLoginError(null); }}>
+          Cancel
+        </Button>
+        <br />
+        <small style={{ color:'gray' }}>
+        If you want to request access, <br /> contact <a href="mailto:ytheriault@ucsd.edu">ytheriault@ucsd.edu</a>
+        </small>
+      </Form>
+    );
+  }
+
   if (isLoading) {
     return (
       <div style={{ textAlign:'center' }}>
         <div style={{ marginBottom:'0.5rem' }}>
           <strong>Position in queue:</strong> {position ?? '…'}<br/>
           <strong>Submitted at:</strong> {startTime ? fmtTime(startTime) : '…'}<br/>
-          {/* <strong>Elapsed:</strong> {fmtDur(elapsed)}<br/> */}
           <strong>Est. wait:</strong> {estWait()}
         </div>
         <Button variant="primary" disabled>
@@ -92,8 +172,10 @@ export default function LoadingButton() {
       </div>
     );
   }
+
+  // idle, logged‑in button
   return (
-    <Button variant="primary" onClick={handleClick}>
+    <Button variant="primary" onClick={handleVisualizeClick}>
       Visualize Self-Assembly
     </Button>
   );
