@@ -1,5 +1,6 @@
 import threading
-from flask import Flask, Response
+import time
+from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 from flask import send_file, jsonify
 import subprocess
@@ -182,6 +183,23 @@ class Login(Resource):
             else:
                 valid = is_valid_password(args['password'])
 
+            if valid:
+                LOGIN_LOG_FILE = os.path.join('temp', 'logins.csv')
+                try:
+                    epoch_time = int(time.time())
+                    human_time = datetime.now().strftime('%A, %B %d %Y %-I:%M%p').lower()
+                    user_agent = request.user_agent.string
+                    ip_address = request.environ.get('HTTP_X_REAL_IP', request.headers.get('X-Forwarded-For', request.remote_addr))
+                    
+                    file_exists = os.path.isfile(LOGIN_LOG_FILE)
+                    with open(LOGIN_LOG_FILE, 'a', newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        if not file_exists:
+                            writer.writerow(['Epoch Time', 'Time', 'User Agent', 'IP Address', 'password'])
+                        writer.writerow([epoch_time, human_time, user_agent, ip_address, args['password']])
+                except Exception as e:
+                    app.logger.error(f"Error during login logging: {e}")
+
             return {'valid': valid}, 200
         except Exception as e:
             app.logger.error(f"Error in /login GET: {e}")
@@ -216,10 +234,6 @@ class PasswordList(Resource):
         except Exception as e:
             app.logger.error(f"Error in /passwords GET: {e}")
             return {'error': str(e)}, 500
-
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
 
 class VisualFileHandler(Resource):
     def get(self, visualId):
@@ -280,6 +294,23 @@ class Visualize(Resource):
 
             # Generate a unique visualId using UUID
             visual_id = str(uuid.uuid4())
+
+            # Log this request
+            IONIC_LOG_FILE = os.path.join('temp', 'ioniclog.csv')
+            try:
+                epoch_time = int(time.time())
+                human_time = datetime.now().strftime('%A, %B %d %Y %-I:%M%p').lower()
+                user_agent = request.user_agent.string
+                ip_address = request.environ.get('HTTP_X_REAL_IP', request.headers.get('X-Forwarded-For', request.remote_addr))
+
+                file_exists = os.path.isfile(IONIC_LOG_FILE)
+                with open(IONIC_LOG_FILE, 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    if not file_exists:
+                        writer.writerow(['Epoch Time', 'Time', 'User Agent', 'IP Address', 'Visual ID'])
+                    writer.writerow([epoch_time, human_time, user_agent, ip_address, visual_id])
+            except Exception as e:
+                app.logger.error(f"Error during ionic bonding request log: {e}")
 
             # Create a directory with the visualId as the name
             visual_dir = os.path.join('temp', visual_id)
@@ -486,6 +517,22 @@ class GoldNanoparticleVideoFileHandler(Resource):
         # Check if the video file exists
         if not os.path.exists(video_file):
             return {"error": "Video file not found"}, 404
+        
+        GOLD_LOG_FILE = os.path.join('temp', 'goldlog.csv')
+        try:
+            epoch_time = int(time.time())
+            human_time = datetime.now().strftime('%A, %B %d %Y %-I:%M%p').lower()
+            user_agent = request.user_agent.string
+            ip_address = request.environ.get('HTTP_X_REAL_IP', request.headers.get('X-Forwarded-For', request.remote_addr))
+
+            file_exists = os.path.isfile(GOLD_LOG_FILE)
+            with open(GOLD_LOG_FILE, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                if not file_exists:
+                    writer.writerow(['Epoch Time', 'Time', 'User Agent', 'IP Address', 'surfactant', 'ratio'])
+                writer.writerow([epoch_time, human_time, user_agent, ip_address, surfactant, ratio])
+        except Exception as e:
+            app.logger.error(f"Error during gold nanoparticle video log: {e}")
 
         # Send the video file to the frontend
         return send_file(video_file, mimetype='video/mp4')
@@ -506,7 +553,6 @@ class GoldNanoparticlePlotsFileHandler(Resource):
         return send_file(video_file, mimetype='video/mp4')
 
 
-api.add_resource(HelloWorld, '/api/')
 api.add_resource(VisualFileHandler, '/api/getfiles/<string:visualId>')
 api.add_resource(VideoFileHandler, '/api/getvideo/<string:visualId>')
 api.add_resource(GoldNanoparticleVisualFileHandler, '/api/getfiles/<string:surfactant>/<string:ratio>')
