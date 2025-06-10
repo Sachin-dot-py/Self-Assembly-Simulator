@@ -13,6 +13,7 @@ export default function Home() {
     return (
         <>
             <Navigation />
+            <title>Self-Assembly Simulator Home</title>
             <div className={styles.homeContainer}>
                 <header className={styles.heroSection}>
                     <div className={styles.heroContent}>

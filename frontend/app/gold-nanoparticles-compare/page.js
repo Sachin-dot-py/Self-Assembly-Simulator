@@ -109,6 +109,7 @@ export default function SurfactantForm() {
     return (
         <>
             <Navigation />
+            <title>Gold Nanoparticle Comparisons</title>
             <Container className={styles.formContainer}>
                 <h1 className={styles.header}>Gold Nanoparticle Self-Assembly</h1>
                 <p className={styles.description}>

@@ -53,6 +53,7 @@ const FeedbackForm = () => {
   return (
     <>
       <Navigation />
+      <title>Submit Feedback</title>
       <center>
         <div className="form-container">
           <h2><FaCommentDots className="icon" /> Submit Feedback</h2>

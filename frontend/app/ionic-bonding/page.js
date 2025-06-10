@@ -33,6 +33,7 @@ export default function EditorPage() {
   return (
     <>
       <Navigation />
+      <title>Ionic Bonding Simulation</title>
       <center>
         <Card bg={"dark"} text={"white"} style={{ width: '52rem' }}>
           <Card.Header as="h5">Visualizing the Self-Assembly of Ions</Card.Header>

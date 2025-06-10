@@ -95,6 +95,7 @@ export default function ManageKeys() {
   return (
     <>
       <Navigation />
+      <title>Manage Access Keys</title>
       {showLoginForm ? (
         <div style={{ maxWidth: 320, margin: '2rem auto' }}>
           <h4><FaUserShield style={{ marginRight: 4 }} />Admin&nbsp;Login</h4>
