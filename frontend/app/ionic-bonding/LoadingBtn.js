@@ -18,6 +18,8 @@ export default function LoadingButton() {
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError]       = useState(null);
 
+  const [atomCount, setAtomCount] = useState(0);
+
   //  Check localStorage for saved password
   useEffect(() => {
     const saved = localStorage.getItem('ACCESS_KEY');
@@ -25,6 +27,47 @@ export default function LoadingButton() {
       setLoggedIn(true);
     }
   }, []);
+
+useEffect(() => {
+  let intervalId;
+  let listenerAttached = false;
+
+  const tryAttachListener = () => {
+    if (
+      window.ketcher &&
+      window.ketcher.editor &&
+      window.ketcher.editor.struct &&
+      window.ketcher.editor.event &&
+      window.ketcher.editor.event.change
+    ) {
+      // Update atom count immediately
+      const updateAtomCount = () => {
+        const count = window.ketcher.editor.struct().atoms.size;
+        setAtomCount(count);
+      };
+
+      updateAtomCount();
+
+      // Listen to structure changes
+      window.ketcher.editor.event.change.add(updateAtomCount);
+      listenerAttached = true;
+
+      // Stop polling
+      clearInterval(intervalId);
+    }
+  };
+
+  // Start polling every 500ms
+  intervalId = setInterval(tryAttachListener, 500);
+
+  return () => {
+    if (listenerAttached && window.ketcher?.editor?.event?.change) {
+      window.ketcher.editor.event.change.remove(updateAtomCount);
+    }
+    clearInterval(intervalId);
+  };
+  }, []);
+
 
   // Kick off submission
   useEffect(() => {
@@ -175,8 +218,22 @@ export default function LoadingButton() {
 
   // idle, logged‑in button
   return (
-    <Button variant="primary" onClick={handleVisualizeClick}>
-      Visualize Self-Assembly
-    </Button>
+    <>
+      <Button
+        variant="primary"
+        onClick={handleVisualizeClick}
+        disabled={atomCount > 20}
+      >
+        Visualize Self-Assembly
+      </Button>
+      <div style={{ marginTop: '0.25rem', color: 'gray' }}>
+      Ion count: <b>{atomCount}</b> (max 20)
+      </div>
+      {atomCount > 20 && (
+        <div style={{ color: 'red', marginTop: '0.5rem' }}>
+          Please reduce the number of ions (max 20).
+        </div>
+      )}
+    </>
   );
 }
