@@ -2,9 +2,29 @@
 
 import styles from './page.module.css';
 import VariablePlot from './VariablePlot';
-import VideoVisual from '../components/VideoVisual';
 import Container from 'react-bootstrap/Container';
 import Navigation from '../components/Navigation';
+import dynamic from 'next/dynamic';
+
+const TrajectoryViewer = dynamic(
+  () => import('../../3d-viewer').then((mod) => mod.TrajectoryViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{
+        width: '100%',
+        height: '500px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#1a1a2e',
+        color: 'white'
+      }}>
+        Loading 3D viewer...
+      </div>
+    )
+  }
+);
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { useEffect, useState } from 'react';
@@ -61,12 +81,17 @@ export default function Page() {
     const [log, setLog] = useState('');
     const [error, setError] = useState(null);
     const [elements, setElements] = useState([]);
+    const [trajectory, setTrajectory] = useState('');
 
     const searchParams = useSearchParams();
     const visualId = searchParams.get('visualId');
 
     const handleSliderChange = (value) => {
         setSliderValue(value); // Update sliderValue when it changes in VideoVisual
+    };
+
+    const handleFrameChange = (frame, totalFrames, progress) => {
+        setSliderValue(progress);
     };
 
     const [isRinging, setIsRinging] = useState(false);
@@ -82,6 +107,7 @@ export default function Page() {
                 const response = await fetch('/api/getfiles/' + visualId);
                 const data = await response.json();
                 setLog(data.log);
+                setTrajectory(data.trajectory);
 
                 // Parse topology file to find unique elements
                 const topologyLines = data.topology.split('\n');
@@ -113,7 +139,16 @@ export default function Page() {
             <Container className={styles.pageContainer}>
                 <Row>
                     <Col className={styles.visualizationCol}>
-                        <VideoVisual visualId={visualId} onProgressChange={handleSliderChange} />
+                        <TrajectoryViewer
+                            trajectoryContent={trajectory}
+                            height="500px"
+                            width="100%"
+                            autoPlay={false}
+                            showControls={true}
+                            showSimulationBox={true}
+                            particleRadius={0.4}
+                            onFrameChange={handleFrameChange}
+                        />
                     </Col>
                     <Col className={styles.textCol}>
                         <div className={styles.explanationText}>
