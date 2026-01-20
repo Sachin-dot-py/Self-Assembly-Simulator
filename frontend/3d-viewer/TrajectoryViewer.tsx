@@ -10,7 +10,7 @@ import styled from "styled-components";
 import VisualizerCanvas from "./components/VisualizerCanvas";
 import PlaybackControls from "./components/PlaybackControls";
 import { useTrajectoryStore } from "./store/trajectoryStore";
-import { parseLammpstrj } from "./parsers/lammpstrjParser";
+import { parseTrajectory } from "./parsers/trajectoryParser";
 
 const ViewerContainer = styled.div<{ $height: string; $width: string }>`
   height: ${(props) => props.$height};
@@ -77,8 +77,6 @@ export interface TrajectoryViewerProps {
   showSimulationBox?: boolean;
   /** Particle radius scale factor (default: 0.4) */
   particleRadius?: number;
-  /** Callback when frame changes - provides frame number, total frames, and progress (0-100) */
-  onFrameChange?: (frame: number, totalFrames: number, progress: number) => void;
 }
 
 export default function TrajectoryViewer({
@@ -89,7 +87,6 @@ export default function TrajectoryViewer({
   showControls = true,
   showSimulationBox = true,
   particleRadius = 0.4,
-  onFrameChange,
 }: TrajectoryViewerProps) {
   const animationRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
@@ -100,7 +97,6 @@ export default function TrajectoryViewer({
     trajectory,
     isPlaying,
     playbackSpeed,
-    currentFrame,
     setTrajectory,
     nextFrame,
     play,
@@ -117,7 +113,7 @@ export default function TrajectoryViewer({
 
     try {
       console.log("Parsing trajectory...");
-      const parsed = parseLammpstrj(trajectoryContent);
+      const parsed = parseTrajectory(trajectoryContent);
       console.log("Parsed frames:", parsed.totalFrames);
       if (parsed.totalFrames === 0) {
         setParseError("No valid frames found in trajectory file");
@@ -135,14 +131,6 @@ export default function TrajectoryViewer({
   useEffect(() => {
     setShowSimulationBox(showSimulationBox);
   }, [showSimulationBox, setShowSimulationBox]);
-
-  // Call onFrameChange callback when frame changes
-  useEffect(() => {
-    if (onFrameChange && trajectory && trajectory.totalFrames > 0) {
-      const progress = (currentFrame / Math.max(1, trajectory.totalFrames - 1)) * 100;
-      onFrameChange(currentFrame, trajectory.totalFrames, progress);
-    }
-  }, [currentFrame, trajectory, onFrameChange]);
 
   // Auto-play on load
   useEffect(() => {

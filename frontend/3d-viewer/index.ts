@@ -16,8 +16,11 @@ export type {
   AtomTypeInfo,
 } from "./parsers/types";
 
-// Parser (for custom usage)
+// Parsers (for custom usage)
+export { parseTrajectory, detectFormat } from "./parsers/trajectoryParser";
+export type { TrajectoryFormat } from "./parsers/trajectoryParser";
 export { parseLammpstrj } from "./parsers/lammpstrjParser";
+export { parseXyz } from "./parsers/xyzParser";
 
 // Store (for advanced usage)
 export { useTrajectoryStore } from "./store/trajectoryStore";
