@@ -109,16 +109,20 @@ export default function Page() {
                 setLog(data.log);
                 setTrajectory(data.trajectory);
 
-                // Parse topology file to find unique elements
+                // Parse topology file (XYZ format) to find unique elements
                 const topologyLines = data.topology.split('\n');
                 const uniqueElements = new Set();
 
-                topologyLines.forEach(line => {
-                    const tokens = line.split(/\s+/);
-                    if (tokens[0] === 'HETATM' && tokens.length > 9) {
-                        let element = tokens[9];
-                        // Remove anything after an underscore, including the underscore itself
-                        element = element.split('_')[0];
+                topologyLines.forEach((line, index) => {
+                    // Skip first two lines (atom count and comment)
+                    if (index < 2) return;
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) return;
+                    const tokens = trimmedLine.split(/\s+/);
+                    if (tokens.length >= 4) {
+                        let element = tokens[0];
+                        // Capitalize first letter, lowercase rest (e.g., "NA" -> "Na")
+                        element = element.charAt(0).toUpperCase() + element.slice(1).toLowerCase();
                         uniqueElements.add(element);
                     }
                 });
@@ -211,26 +215,26 @@ Repeat the video a few times while looking at the plots and notice how each prop
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="kcal/mol" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Temperature" variableUnit="K" plotType="ionic" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={7} variableName="Coulombic Energy" variableUnit="kcal/mol" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Potential Energy" variableUnit="eV" plotType="ionic" />
                     </Col>
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Kinetic Energy" variableUnit="eV" plotType="ionic" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Total Energy" variableUnit="eV" plotType="ionic" />
                     </Col>
                 </Row>
-                <Row> 
+                <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Density" variableUnit="g/cm³" plotType="ionic" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={19} variableName="Volume" variableUnit="A^3" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Pressure" variableUnit="bar" plotType="ionic" />
                     </Col>
                 </Row>
             </Container>

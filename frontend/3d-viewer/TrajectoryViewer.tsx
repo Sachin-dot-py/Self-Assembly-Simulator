@@ -88,7 +88,7 @@ export default function TrajectoryViewer({
   showSimulationBox = true,
   particleRadius = 0.4,
 }: TrajectoryViewerProps) {
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
 
   const [parseError, setParseError] = useState<string | null>(null);

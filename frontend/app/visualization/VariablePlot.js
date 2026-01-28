@@ -25,31 +25,27 @@ const options = (variableName, variableUnit, plotType) => ({
                 generateLabels: (chart) => {
                     return [
                         {
-                            text: "Algorithm minimization",
-                            fillStyle: 'rgba(128, 128, 128, 1)',
-                        },
-                        {
-                            text: "Heat (constant V) to room temperature",
+                            text: "NPT heating: 1 → 298 K",
                             fillStyle: 'rgba(255, 69, 0, 1)',
                         },
                         {
-                            text: "Maintain (constant P) at room temperature",
+                            text: "NPT equilibration: 298 K",
                             fillStyle: 'rgba(30, 144, 255, 1)',
                         },
                         {
-                            text: "Heat/anneal (constant V) to 1000K",
+                            text: "NPT heating: 298 → 1000 K",
                             fillStyle: 'rgba(255, 140, 0, 1)',
                         },
                         {
-                            text: "Maintain (constant P) at 1000K",
+                            text: "NPT equilibration: 1000 K",
                             fillStyle: 'rgba(100, 149, 237, 1)',
                         },
                         {
-                            text: "Cool (constant P) to room temperature",
+                            text: "NPT cooling: 1000 → 298 K",
                             fillStyle: 'rgba(0, 191, 255, 1)',
                         },
                         {
-                            text: "Equilibrate (constant V) at room temperature",
+                            text: "Final NVT equilibration",
                             fillStyle: 'rgba(144, 238, 144, 1)',
                         },
                     ];
@@ -61,7 +57,7 @@ const options = (variableName, variableUnit, plotType) => ({
         x: {
             title: {
                 display: true,
-                text: 'Step',
+                text: 'Time (ps)',
                 font: {
                     size: 14,
                 },
@@ -82,90 +78,87 @@ const options = (variableName, variableUnit, plotType) => ({
     animation: false,
 });
 
-export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit, plotType="gold" }) {
+export default function VariablePlot({ log, sliderValue, variableName, variableUnit, plotType="gold" }) {
     const [isSmooth, setIsSmooth] = useState(true);
 
+    // UMA phase colors
     const phaseColors = {
-        minimization: 'rgba(128, 128, 128, 1)', 
-        heating_1: 'rgba(255, 69, 0, 1)',       
-        pressure_equilibration_1: 'rgba(30, 144, 255, 1)', 
-        heating_2: 'rgba(255, 140, 0, 1)',   
-        pressure_equilibration_2: 'rgba(100, 149, 237, 1)', 
-        cooling: 'rgba(0, 191, 255, 1)',       
-        final_equilibration: 'rgba(144, 238, 144, 1)', 
-        heating: 'rgba(255, 99, 71, 1)',
+        heat1: 'rgba(255, 69, 0, 1)',
+        equilibrate1: 'rgba(30, 144, 255, 1)',
+        heat2: 'rgba(255, 140, 0, 1)',
+        equilibrate2: 'rgba(100, 149, 237, 1)',
+        cool: 'rgba(0, 191, 255, 1)',
+        final_equilibrate: 'rgba(144, 238, 144, 1)',
     };
 
-    const phaseLabels = {
-        minimization: 'Algorithm minimization',
-        heating_1: 'Heat (constant V) to room temperature',
-        pressure_equilibration_1: 'Maintain (constant P) at room temperature',
-        heating_2: 'Heat/anneal (constant V) to 1000K',
-        pressure_equilibration_2: 'Maintain (constant P) at 1000K',
-        cooling: 'Cool (constant P) to room temperature',
-        final_equilibration: 'Equilibrate (constant V) at room temperature',
-        heating: 'Heating',
+    // CSV column indices for thermo.csv
+    const csvColumns = {
+        md_step: 0,
+        time_ps: 1,
+        phase: 2,
+        ensemble: 3,
+        temperature_K: 4,
+        potential_energy_eV: 5,
+        kinetic_energy_eV: 6,
+        total_energy_eV: 7,
+        volume_A3: 8,
+        density_g_cm3: 9,
+        pressure_bar: 10,
     };
 
-    const { steps, variableData, colors } = useMemo(() => {
-        let index = 0;
-        let steps = [];
+    const { timeData, variableData, colors } = useMemo(() => {
+        const lines = log.split('\n');
+        let timeData = [];
         let variableData = [];
         let colors = [];
-        let insideData = false;
-        let currentPhase = 'minimization';
 
-        log.split('\n').forEach((line) => {
-            if (line.includes('500 steps CG Minimization')) {
-                currentPhase = 'minimization';
-            } else if (line.includes('NVT dynamics to heat system x1')) {
-                currentPhase = 'heating_1';
-            } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm. x1')) {
-                currentPhase = 'pressure_equilibration_1';
-            } else if (line.includes('NVT dynamics to heat system x2')) {
-                currentPhase = 'heating_2';
-            } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm. x2')) {
-                currentPhase = 'pressure_equilibration_2';
-            } else if (line.includes('NPT dynamics to cool system')) {
-                currentPhase = 'cooling';
-            } else if (line.includes('NVT dynamics for equilibration')) {
-                currentPhase = 'final_equilibration';
-            } else if (line.includes('NVT dynamics to heat system')) {
-                currentPhase = 'heating';
+        // Skip header line, parse CSV data
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const columns = line.split(',');
+            if (columns.length < 11) continue;
+
+            const time = parseFloat(columns[csvColumns.time_ps]);
+            const phase = columns[csvColumns.phase];
+
+            // Get value based on variableName
+            let value;
+            switch (variableName) {
+                case 'Total Energy':
+                    value = parseFloat(columns[csvColumns.total_energy_eV]);
+                    break;
+                case 'Potential Energy':
+                    value = parseFloat(columns[csvColumns.potential_energy_eV]);
+                    break;
+                case 'Kinetic Energy':
+                    value = parseFloat(columns[csvColumns.kinetic_energy_eV]);
+                    break;
+                case 'Temperature':
+                    value = parseFloat(columns[csvColumns.temperature_K]);
+                    break;
+                case 'Pressure':
+                    value = parseFloat(columns[csvColumns.pressure_bar]);
+                    break;
+                case 'Density':
+                    value = parseFloat(columns[csvColumns.density_g_cm3]);
+                    break;
+                default:
+                    value = NaN;
             }
 
-            if (line.includes('Step')) {
-                insideData = true;
-                return;
-            }
-            if (insideData && (line.includes('SHAKE') || line.includes('Bond'))) {
-                return;
-            }
-            if (insideData && line.includes('Loop time of')) {
-                insideData = false;
-                return;
-            }
-            if (insideData) {
-                let columns = line.trim().split(/\s+/);
-                let step = parseInt(columns[0]);
-                if (step < 100){ 
-                    return;
-                }
-                let variableValue = parseFloat(columns[variableIndex]);
+            const color = phaseColors[phase] || 'rgba(128, 128, 128, 1)';
 
-                let color = phaseColors[currentPhase];
-
-                if (!isNaN(step) && !isNaN(variableValue)) {
-                    steps.push(step);
-                    variableData.push(variableValue);
-                    colors.push(color);
-                }
-                index++;
+            if (!isNaN(time) && !isNaN(value)) {
+                timeData.push(time);
+                variableData.push(value);
+                colors.push(color);
             }
-        });
+        }
 
-        return { steps, variableData, colors };
-    }, [log, variableIndex, phaseColors]);
+        return { timeData, variableData, colors };
+    }, [log, variableName]);
 
     const gaussianSmooth = (data, sigma = 2) => {
         const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
@@ -191,55 +184,41 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const lowerBound = mean - 2 * stdDev;
     const upperBound = mean + 2 * stdDev;
 
-    const filteredData = steps.reduce(
-        (acc, step, index) => {
+    const filteredData = timeData.reduce(
+        (acc, time, index) => {
             if (variableData[index] >= lowerBound && variableData[index] <= upperBound) {
-                acc.steps.push(step);
+                acc.timeData.push(time);
                 acc.variableData.push(variableData[index]);
                 acc.colors.push(colors[index]);
             }
             return acc;
         },
-        { steps: [], variableData: [], colors: [] }
+        { timeData: [], variableData: [], colors: [] }
     );
 
     const smoothData = isSmooth
         ? gaussianSmooth(filteredData.variableData)
         : filteredData.variableData;
 
-    const filteredSteps = filteredData.steps;
+    const filteredTime = filteredData.timeData;
     const filteredColors = filteredData.colors;
 
-    const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredSteps.length);
+    const maxVisibleIndex = Math.floor((sliderValue / 100) * filteredTime.length);
     const visibleVariableDataSlice = smoothData.slice(0, maxVisibleIndex);
-    const visibleStepsSlice = filteredSteps.slice(0, maxVisibleIndex);
+    const visibleTimeSlice = filteredTime.slice(0, maxVisibleIndex);
     const visibleColorsSlice = filteredColors.slice(0, maxVisibleIndex);
 
-    // const coords = visibleStepsSlice.map((el, index) => [el, visibleVariableDataSlice[index]]);
-    // const polynomialRegression = regression.polynomial(coords, { order: 1, precision: 5 });
-    // const polynomialFitData = polynomialRegression.points.map(([x, y]) => ({ x, y }));
-
     const data = {
-        labels: visibleStepsSlice,
+        labels: visibleTimeSlice,
         datasets: [
             {
-                label: `Step vs ${variableName} (${isSmooth ? 'Smooth' : 'Raw'})`,
+                label: `Time vs ${variableName} (${isSmooth ? 'Smooth' : 'Raw'})`,
                 data: visibleVariableDataSlice,
                 pointBackgroundColor: visibleColorsSlice,
                 borderColor: 'rgba(0, 0, 0, 0.1)',
                 tension: 0.4,
                 order: 1,
             },
-            // {
-            //     label: "Polynomial Fit",
-            //     data: polynomialFitData.map(point => point.y),
-            //     borderColor: "rgba(64, 64, 64, 1)",
-            //     borderDash: [5, 5],
-            //     fill: false,
-            //     pointRadius: 0,
-            //     tension: 0.4,
-            //     order: 0
-            // }
         ]
     };
 

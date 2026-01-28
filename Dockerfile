@@ -10,36 +10,30 @@ RUN apt-get update && \
       lammps openbabel libopenbabel-dev libatlas-base-dev ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
-# 3) Build & install VMD from your local source tree
-COPY vmd-1.9.3 /tmp/vmd-1.9.3
-RUN cd /tmp/vmd-1.9.3 && \
-    ./configure LINUXAMD64 && \
-    cd src && \
-    make install && \
-    rm -rf /tmp/vmd-1.9.3
-ENV PATH="/usr/local/vmd/bin:${PATH}"
-
-# 4) Install PM2 globally so we can run both processes
+# 3) Install PM2 globally so we can run both processes
 USER root
 RUN rm -rf /.pm2 && ln -s /app/api/temp/.pm2 /.pm2
 ENV PM2_HOME=/app/api/temp/.pm2
 RUN npm install -g pm2
 
-# 5) Bring in PM2 ecosystem file
+# 4) Bring in PM2 ecosystem file
 COPY ecosystem.config.js /app/ecosystem.config.js
 
-# 6) Prepare backend
+# 5) Prepare backend
 COPY api/requirements.txt /app/api/requirements.txt
 RUN pip3 install --break-system-packages --no-cache-dir -r /app/api/requirements.txt gunicorn
 
-# 7) Prepare frontend deps
+# 6) Prepare frontend deps
 COPY frontend/package*.json /app/frontend/
 RUN cd /app/frontend && npm install
 
-# 8) Copy all source code
+# 7) Copy all source code
 COPY api       /app/api
 COPY frontend  /app/frontend
 COPY ATLAS-toolkit /app/ATLAS-toolkit
+
+# 8) Initialize ASE 
+RUN python3 /app/api/ase_test.py
 
 # 9) Build the Next.js app
 RUN cd /app/frontend && npm run build

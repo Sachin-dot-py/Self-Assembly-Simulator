@@ -48,28 +48,17 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
 
-def convert_mdl_to_bgf(mdl_filename):
-    """Converts an MDL V3000 file to a BGF file using Open Babel."""
-    bgf_filename = mdl_filename.replace('.mol', '.bgf')
+def convert_mdl_to_xyz(mdl_filename):
+    """Converts an MDL V3000 file to XYZ format using Open Babel."""
+    xyz_filename = mdl_filename.replace('.mol', '.xyz')
 
-    # Step 1: Convert MDL to BGF using Open Babel
+    # Convert MDL to XYZ using Open Babel
     subprocess.run(
-        ['/usr/bin/obabel', '-imdl', mdl_filename, '-obgf', '-O', bgf_filename],
+        ['/usr/bin/obabel', '-imdl', mdl_filename, '-oxyz', '-O', xyz_filename],
         check=True
     )
-    print(f"Converted {mdl_filename} to {bgf_filename}.")
-
-    # Step 2: Extract charges from the MDL file
-    atom_charges = extract_charges_from_mdl(mdl_filename)
-
-    # Step 3: Update BGF file charges using sed
-    update_bgf_with_sed(bgf_filename, atom_charges)
-
-    # Center the BGF
-    subprocess.run(
-        ['/app/ATLAS-toolkit/scripts/centerBGF.pl', '-b', bgf_filename, '-f', 'UFF'],
-        check=True
-    )
+    print(f"Converted {mdl_filename} to {xyz_filename}.")
+    return xyz_filename
 
 def extract_charges_from_mdl(mdl_filename):
     """Extracts atomic charges from the MDL V3000 file."""
@@ -244,25 +233,25 @@ class VisualFileHandler(Resource):
         if not os.path.exists(visual_dir):
             return {"error": "Invalid visualId"}, 404
 
-        # Define file paths
-        bgf_file = os.path.join(visual_dir, 'input.bgf')
-        traj_file = os.path.join(visual_dir, 'master.lammpstrj')
-        log_file = os.path.join(visual_dir, 'log.lammps')
+        # Define file paths (UMA output files)
+        xyz_file = os.path.join(visual_dir, 'input.xyz')
+        traj_file = os.path.join(visual_dir, 'trajectory_all.xyz')
+        log_file = os.path.join(visual_dir, 'thermo.csv')
 
         # Ensure that all files exist
-        if not all([os.path.exists(bgf_file), os.path.exists(traj_file), os.path.exists(log_file)]):
+        if not all([os.path.exists(xyz_file), os.path.exists(traj_file), os.path.exists(log_file)]):
             return {"error": "One or more files not found"}, 404
 
         # Read and return the contents of each file
-        with open(bgf_file, 'r') as f:
-            bgf_content = f.read()
+        with open(xyz_file, 'r') as f:
+            xyz_content = f.read()
         with open(traj_file, 'r') as f:
             traj_content = f.read()
         with open(log_file, 'r') as f:
             log_content = f.read()
 
         return jsonify({
-            'topology': bgf_content,
+            'topology': xyz_content,
             'trajectory': traj_content,
             'log': log_content
         })
@@ -342,96 +331,13 @@ class Visualize(Resource):
     def run_simulation(visual_dir, temperature, visual_id):
         try:
             visual_dir = os.path.join('temp', visual_id)
-            
-            # Step 1: Run Open Babel to convert .mol to .bgf format
-            convert_mdl_to_bgf(os.path.join(visual_dir, 'input.mol'))
 
-            # Step 2: Run the createLammpsInput.pl script with the .bgf file and merge generated in.lammps with template in.lammps
-            create_lammps_input_command = ['/app/ATLAS-toolkit/scripts/createLammpsInput.pl', '-b', 'input.bgf', '-f', 'UFF']
-            subprocess.run(create_lammps_input_command, cwd=visual_dir, check=True)
+            # Step 1: Run Open Babel to convert .mol to .xyz format
+            input_xyz = convert_mdl_to_xyz(os.path.join(visual_dir, 'input.mol'))
 
-            with open(os.path.join(visual_dir, 'in.lammps'), 'r') as f:
-                current_lines = f.readlines()
-
-            with open('in.lammps', 'r') as f:
-                template_lines = f.readlines()
-
-            # Find the index of 'timestep 1' in both files
-            timestep_line = 'timestep             1'
-            current_split_idx = next(i for i, line in enumerate(current_lines) if timestep_line in line)
-            outer_split_idx = next(i for i, line in enumerate(template_lines) if timestep_line in line)
-
-            # Combine everything before the 'timestep 1' line from the current file
-            # with everything after the 'timestep 1' line from the outer file
-            merged_content = current_lines[:current_split_idx + 1] + template_lines[outer_split_idx + 1:]
-
-            # Overwrite the current in.lammps with the merged content
-            with open(os.path.join(visual_dir, 'in.lammps'), 'w') as f:
-                # f.writelines(merged_content)
-                f.writelines(template_lines) # TODO: Removed the Create Lammps Input step for now. Just using the master in.lammps due to bug.
-
-            # Step 3: Remove the files 'in.lammps_singlepoint' and 'lammps.lammps.slurm'
-            files_to_remove = ['in.lammps_singlepoint', 'lammps.lammps.slurm']
-            for filename in files_to_remove:
-                file_path = os.path.join(visual_dir, filename)
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-
-            # Step 4: Run LAMMPS with the given temperature
-            lammps_command = ['mpirun', '--allow-run-as-root', 'lmp', '-in', 'in.lammps', '-var', 'rtemp', str(temperature)]
-            subprocess.run(lammps_command, cwd=visual_dir, check=True)
-
-            # Step 5: Rename lammps.visualize.lammpstrj to master.lammpstrj
-            # os.rename(os.path.join(visual_dir, 'lammps.visualize.lammpstrj'), os.path.join(visual_dir, 'master.lammpstrj'))
-
-            # Step 5: Merge all the trajectory files into a single file
-            files_to_merge = [
-                "lammps.minimization.lammpstrj",
-                "lammps.heat1.lammpstrj",
-                "lammps.pressure1.lammpstrj",
-                "lammps.heat2.lammpstrj",
-                "lammps.pressure2.lammpstrj",
-                "lammps.cool.lammpstrj",
-                "lammps.equilibrate.lammpstrj",
-            ]
-            output_file = os.path.join(visual_dir, "master.lammpstrj")
-
-            # Open the output file in write mode
-            with open(output_file, "w") as master_file:
-                for traj_file in files_to_merge:
-                    file_path = os.path.join(visual_dir, traj_file)
-                    if os.path.exists(file_path):
-                        with open(file_path, "r") as single_file:
-                            master_file.write(single_file.read())
-
-            # Create the visualization
-
-            # Step 1: Run VMD to generate individual frame files (.tga)
-
-            # Non-parallel version:
-            vmd_command = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize.vmd']
-            subprocess.run(vmd_command, cwd=visual_dir, check=True)
-
-            # Parallel version:
-            # vmd_command_even = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize-even.vmd']
-            # vmd_command_odd = ['/usr/local/bin/vmd', '-dispdev', 'text', '-e', '../../visualize-odd.vmd']
-
-            # process_even = subprocess.Popen(vmd_command_even, cwd=visual_dir)
-            # process_odd = subprocess.Popen(vmd_command_odd, cwd=visual_dir)
-
-            # process_even.wait()
-            # process_odd.wait()
-
-            # Step 2: Combine .tga frames into a video using FFmpeg
-            ffmpeg_command = ['/usr/bin/ffmpeg', '-framerate', '7', '-i', 'frame_%d.tga', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', 'visualization.mp4']
-            subprocess.run(ffmpeg_command, cwd=visual_dir, check=True)
-
-            # Step 3: Remove all .tga files
-            for file in os.listdir(visual_dir):
-                if file.endswith('.tga'):
-                    os.remove(os.path.join(visual_dir, file))
-
-            # Output files: visualization.mp4, input.bgf (topology), master.lammpstrj (trajectory), log.lammps (LAMMPS log)
+            # Step 2: Run UMA equilibration script
+            uma_script = os.path.join(os.path.dirname(__file__), 'uma_matmarv_equilibrate_modified.py')
+            subprocess.run(['python3', uma_script, input_xyz, '--outdir', visual_dir], check=True)
 
             # Mark the visualization as completed
             with open(os.path.join(visual_dir, 'status.txt'), 'w') as status_file:
