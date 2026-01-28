@@ -77,6 +77,8 @@ export interface TrajectoryViewerProps {
   showSimulationBox?: boolean;
   /** Particle radius scale factor (default: 0.4) */
   particleRadius?: number;
+  /** Callback when frame changes (frame, totalFrames, progress 0-100) */
+  onFrameChange?: (frame: number, totalFrames: number, progress: number) => void;
 }
 
 export default function TrajectoryViewer({
@@ -87,6 +89,7 @@ export default function TrajectoryViewer({
   showControls = true,
   showSimulationBox = true,
   particleRadius = 0.4,
+  onFrameChange,
 }: TrajectoryViewerProps) {
   const animationRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
@@ -95,6 +98,7 @@ export default function TrajectoryViewer({
 
   const {
     trajectory,
+    currentFrame,
     isPlaying,
     playbackSpeed,
     setTrajectory,
@@ -131,6 +135,14 @@ export default function TrajectoryViewer({
   useEffect(() => {
     setShowSimulationBox(showSimulationBox);
   }, [showSimulationBox, setShowSimulationBox]);
+
+  // Notify parent of frame changes
+  useEffect(() => {
+    if (onFrameChange && trajectory) {
+      const progress = (currentFrame / Math.max(1, trajectory.totalFrames - 1)) * 100;
+      onFrameChange(currentFrame, trajectory.totalFrames, progress);
+    }
+  }, [currentFrame, trajectory, onFrameChange]);
 
   // Auto-play on load
   useEffect(() => {
