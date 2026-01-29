@@ -1,5 +1,12 @@
 import argparse
 import os
+
+# Redirect all cache/config writes to a writable directory
+os.environ["HF_HOME"] = "/api/temp/.cache/huggingface"
+os.environ["TORCH_HOME"] = "/api/temp/.cache/torch"
+os.environ["MPLCONFIGDIR"] = "/api/temp/.cache/matplotlib"
+os.environ["XDG_CACHE_HOME"] = "/api/temp/.cache"
+
 import numpy as np
 import torch
 import csv
