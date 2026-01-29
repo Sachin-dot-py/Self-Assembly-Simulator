@@ -4,7 +4,26 @@ import { Line } from 'react-chartjs-2';
 import regression from 'regression';
 import { Form, Container, Row, Col } from 'react-bootstrap';
 
-const options = (variableName, variableUnit, plotType, isCSVFormat) => ({
+const lammpsLegendLabels = [
+    { text: "Algorithm minimization", fillStyle: 'rgba(128, 128, 128, 1)' },
+    { text: "Heat (constant V) to room temperature", fillStyle: 'rgba(255, 69, 0, 1)' },
+    { text: "Maintain (constant P) at room temperature", fillStyle: 'rgba(30, 144, 255, 1)' },
+    { text: "Heat/anneal (constant V) to 1000K", fillStyle: 'rgba(255, 140, 0, 1)' },
+    { text: "Maintain (constant P) at 1000K", fillStyle: 'rgba(100, 149, 237, 1)' },
+    { text: "Cool (constant P) to room temperature", fillStyle: 'rgba(0, 191, 255, 1)' },
+    { text: "Equilibrate (constant V) at room temperature", fillStyle: 'rgba(144, 238, 144, 1)' },
+];
+
+const csvLegendLabels = [
+    { text: "NPT heating: 1 → 298 K", fillStyle: 'rgba(255, 69, 0, 1)' },
+    { text: "NPT equilibration: 298 K", fillStyle: 'rgba(30, 144, 255, 1)' },
+    { text: "NPT heating: 298 → 1000 K", fillStyle: 'rgba(255, 140, 0, 1)' },
+    { text: "NPT equilibration: 1000 K", fillStyle: 'rgba(100, 149, 237, 1)' },
+    { text: "NPT cooling: 1000 → 298 K", fillStyle: 'rgba(0, 191, 255, 1)' },
+    { text: "Final NVT equilibration", fillStyle: 'rgba(144, 238, 144, 1)' },
+];
+
+const options = (variableName, variableUnit, plotType, isCSV) => ({
     plugins: {
         title: {
             text: `${variableName}`,
@@ -21,30 +40,8 @@ const options = (variableName, variableUnit, plotType, isCSVFormat) => ({
             display: plotType === "ionic",
             position: 'top',
             labels: {
-                // Custom legend to label each phase color
                 generateLabels: (chart) => {
-                    if (isCSVFormat) {
-                        // UMA/CSV format phases
-                        return [
-                            { text: "NPT heating: 1 → 298 K", fillStyle: 'rgba(255, 69, 0, 1)' },
-                            { text: "NPT equilibration: 298 K", fillStyle: 'rgba(30, 144, 255, 1)' },
-                            { text: "NPT heating: 298 → 1000 K", fillStyle: 'rgba(255, 140, 0, 1)' },
-                            { text: "NPT equilibration: 1000 K", fillStyle: 'rgba(100, 149, 237, 1)' },
-                            { text: "NPT cooling: 1000 → 298 K", fillStyle: 'rgba(0, 191, 255, 1)' },
-                            { text: "Final NVT equilibration", fillStyle: 'rgba(144, 238, 144, 1)' },
-                        ];
-                    } else {
-                        // LAMMPS format phases
-                        return [
-                            { text: "Algorithm minimization", fillStyle: 'rgba(128, 128, 128, 1)' },
-                            { text: "Heat (constant V) to room temperature", fillStyle: 'rgba(255, 69, 0, 1)' },
-                            { text: "Maintain (constant P) at room temperature", fillStyle: 'rgba(30, 144, 255, 1)' },
-                            { text: "Heat/anneal (constant V) to 1000K", fillStyle: 'rgba(255, 140, 0, 1)' },
-                            { text: "Maintain (constant P) at 1000K", fillStyle: 'rgba(100, 149, 237, 1)' },
-                            { text: "Cool (constant P) to room temperature", fillStyle: 'rgba(0, 191, 255, 1)' },
-                            { text: "Equilibrate (constant V) at room temperature", fillStyle: 'rgba(144, 238, 144, 1)' },
-                        ];
-                    }
+                    return isCSV ? csvLegendLabels : lammpsLegendLabels;
                 },
             },
         },
@@ -53,7 +50,7 @@ const options = (variableName, variableUnit, plotType, isCSVFormat) => ({
         x: {
             title: {
                 display: true,
-                text: isCSVFormat ? 'Time (ps)' : 'Step',
+                text: isCSV ? 'Time (ps)' : 'Step',
                 font: {
                     size: 14,
                 },
@@ -77,18 +74,7 @@ const options = (variableName, variableUnit, plotType, isCSVFormat) => ({
 export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit, plotType="gold" }) {
     const [isSmooth, setIsSmooth] = useState(true);
 
-    // UMA/CSV phase colors
-    const csvPhaseColors = {
-        heat1: 'rgba(255, 69, 0, 1)',
-        equilibrate1: 'rgba(30, 144, 255, 1)',
-        heat2: 'rgba(255, 140, 0, 1)',
-        equilibrate2: 'rgba(100, 149, 237, 1)',
-        cool: 'rgba(0, 191, 255, 1)',
-        final_equilibrate: 'rgba(144, 238, 144, 1)',
-    };
-
-    // LAMMPS phase colors
-    const lammpsPhaseColors = {
+    const phaseColors = {
         minimization: 'rgba(128, 128, 128, 1)',
         heating_1: 'rgba(255, 69, 0, 1)',
         pressure_equilibration_1: 'rgba(30, 144, 255, 1)',
@@ -99,72 +85,56 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         heating: 'rgba(255, 99, 71, 1)',
     };
 
-    // CSV column indices for thermo.csv
-    const csvColumns = {
-        md_step: 0,
-        time_ps: 1,
-        phase: 2,
-        ensemble: 3,
-        temperature_K: 4,
-        potential_energy_eV: 5,
-        kinetic_energy_eV: 6,
-        total_energy_eV: 7,
-        volume_A3: 8,
-        density_g_cm3: 9,
-        pressure_bar: 10,
+    const csvPhaseColors = {
+        heat1: 'rgba(255, 69, 0, 1)',
+        equilibrate1: 'rgba(30, 144, 255, 1)',
+        heat2: 'rgba(255, 140, 0, 1)',
+        equilibrate2: 'rgba(100, 149, 237, 1)',
+        cool: 'rgba(0, 191, 255, 1)',
+        final_equilibrate: 'rgba(144, 238, 144, 1)',
     };
 
-    // Detect if log is CSV format (starts with header containing md_step)
-    const isCSVFormat = useMemo(() => {
+    const csvColumns = {
+        md_step: 0, time_ps: 1, phase: 2, ensemble: 3,
+        temperature_K: 4, potential_energy_eV: 5, kinetic_energy_eV: 6,
+        total_energy_eV: 7, volume_A3: 8, density_g_cm3: 9, pressure_bar: 10,
+    };
+
+    // Detect CSV format by checking if first line contains the CSV header
+    const isCSV = useMemo(() => {
         const firstLine = log.split('\n')[0];
         return firstLine && firstLine.includes('md_step');
     }, [log]);
 
     const { xData, variableData, colors } = useMemo(() => {
-        const lines = log.split('\n');
         let xData = [];
         let variableData = [];
         let colors = [];
 
-        if (isCSVFormat) {
-            // Parse CSV format (UMA thermo.csv)
+        if (isCSV) {
+            // ---- CSV / UMA thermo.csv path ----
+            const lines = log.split('\n');
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
+                const cols = line.split(',');
+                if (cols.length < 11) continue;
 
-                const columns = line.split(',');
-                if (columns.length < 11) continue;
+                const time = parseFloat(cols[csvColumns.time_ps]);
+                const phase = cols[csvColumns.phase];
 
-                const time = parseFloat(columns[csvColumns.time_ps]);
-                const phase = columns[csvColumns.phase];
-
-                // Get value based on variableName
                 let value;
                 switch (variableName) {
-                    case 'Total Energy':
-                        value = parseFloat(columns[csvColumns.total_energy_eV]);
-                        break;
-                    case 'Potential Energy':
-                        value = parseFloat(columns[csvColumns.potential_energy_eV]);
-                        break;
-                    case 'Kinetic Energy':
-                        value = parseFloat(columns[csvColumns.kinetic_energy_eV]);
-                        break;
-                    case 'Temperature':
-                        value = parseFloat(columns[csvColumns.temperature_K]);
-                        break;
-                    case 'Pressure':
-                        value = parseFloat(columns[csvColumns.pressure_bar]);
-                        break;
-                    case 'Density':
-                        value = parseFloat(columns[csvColumns.density_g_cm3]);
-                        break;
-                    default:
-                        value = NaN;
+                    case 'Total Energy':     value = parseFloat(cols[csvColumns.total_energy_eV]); break;
+                    case 'Potential Energy':  value = parseFloat(cols[csvColumns.potential_energy_eV]); break;
+                    case 'Kinetic Energy':   value = parseFloat(cols[csvColumns.kinetic_energy_eV]); break;
+                    case 'Temperature':      value = parseFloat(cols[csvColumns.temperature_K]); break;
+                    case 'Pressure':         value = parseFloat(cols[csvColumns.pressure_bar]); break;
+                    case 'Density':          value = parseFloat(cols[csvColumns.density_g_cm3]); break;
+                    default:                 value = NaN;
                 }
 
                 const color = csvPhaseColors[phase] || 'rgba(128, 128, 128, 1)';
-
                 if (!isNaN(time) && !isNaN(value)) {
                     xData.push(time);
                     variableData.push(value);
@@ -172,12 +142,11 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 }
             }
         } else {
-            // Parse LAMMPS log format
+            // ---- Original LAMMPS log path (unchanged) ----
             let insideData = false;
             let currentPhase = 'minimization';
 
-            lines.forEach((line) => {
-                // Detect phase changes
+            log.split('\n').forEach((line) => {
                 if (line.includes('500 steps CG Minimization')) {
                     currentPhase = 'minimization';
                 } else if (line.includes('NVT dynamics to heat system x1')) {
@@ -210,11 +179,12 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 if (insideData) {
                     let columns = line.trim().split(/\s+/);
                     let step = parseInt(columns[0]);
-                    if (step < 100) {
+                    if (step < 100){
                         return;
                     }
                     let variableValue = parseFloat(columns[variableIndex]);
-                    let color = lammpsPhaseColors[currentPhase];
+
+                    let color = phaseColors[currentPhase];
 
                     if (!isNaN(step) && !isNaN(variableValue)) {
                         xData.push(step);
@@ -226,7 +196,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         }
 
         return { xData, variableData, colors };
-    }, [log, variableName, variableIndex, isCSVFormat]);
+    }, [log, variableIndex, variableName, isCSV, phaseColors]);
 
     const gaussianSmooth = (data, sigma = 2) => {
         const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
@@ -276,7 +246,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const visibleXSlice = filteredX.slice(0, maxVisibleIndex);
     const visibleColorsSlice = filteredColors.slice(0, maxVisibleIndex);
 
-    const xLabel = isCSVFormat ? 'Time' : 'Step';
+    const xLabel = isCSV ? 'Time' : 'Step';
     const data = {
         labels: visibleXSlice,
         datasets: [
@@ -308,7 +278,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
             </Row>
             <Row>
                 <Col style={{ height: '500px', width: '100%' }}>
-                    <Line data={data} options={options(variableName, variableUnit, plotType, isCSVFormat)} />
+                    <Line data={data} options={options(variableName, variableUnit, plotType, isCSV)} />
                 </Col>
             </Row>
         </Container>
