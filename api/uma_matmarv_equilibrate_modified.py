@@ -2,6 +2,7 @@ import argparse
 import os
 
 # Redirect all cache/config writes to a writable directory
+os.environ.setdefault("HOME", "/app/api/temp")
 os.environ["HF_HOME"] = "/app/api/temp/.cache/huggingface"
 os.environ["TORCH_HOME"] = "/app/api/temp/.cache/torch"
 os.environ["MPLCONFIGDIR"] = "/app/api/temp/.cache/matplotlib"
