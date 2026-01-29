@@ -22,4 +22,4 @@ dyn = Langevin(
 )
 trajectory = Trajectory("my_md.traj", "w", atoms)
 dyn.attach(trajectory.write, interval=1)
-dyn.run(steps=1000)
+dyn.run(steps=10)
