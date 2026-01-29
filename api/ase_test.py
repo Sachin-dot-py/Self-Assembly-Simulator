@@ -5,6 +5,8 @@ os.environ["HF_HOME"] = "/app/api/temp/.cache/huggingface"
 os.environ["TORCH_HOME"] = "/app/api/temp/.cache/torch"
 os.environ["MPLCONFIGDIR"] = "/app/api/temp/.cache/matplotlib"
 os.environ["XDG_CACHE_HOME"] = "/app/api/temp/.cache"
+os.environ["FAIRCHEM_CACHE"] = "/app/api/temp/.cache/fairchem"
+os.environ["OMP_CACHE"] = "/app/api/temp/.cache/omp"
 
 from huggingface_hub import login
 from TOKEN import HUGGING_FACE_TOKEN

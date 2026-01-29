@@ -12,6 +12,7 @@ RUN apt-get update && \
 
 # 3) Install PM2 globally so we can run both processes
 USER root
+ENV HOME=/app/api/temp
 RUN rm -rf /.pm2 && ln -s /app/api/temp/.pm2 /.pm2
 ENV PM2_HOME=/app/api/temp/.pm2
 RUN npm install -g pm2
