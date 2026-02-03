@@ -367,7 +367,7 @@ class Visualize(Resource):
 
             # Overwrite the current in.lammps with the merged content (generated header + template body)
             with open(os.path.join(visual_dir, 'in.lammps'), 'w') as f:
-                f.writelines(merged_content)
+                f.writelines(template_lines) # due to bug, writing just template
 
             # Step 3: Remove the files 'in.lammps_singlepoint' and 'lammps.lammps.slurm'
             files_to_remove = ['in.lammps_singlepoint', 'lammps.lammps.slurm']
