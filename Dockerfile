@@ -33,15 +33,12 @@ COPY api       /app/api
 COPY frontend  /app/frontend
 COPY ATLAS-toolkit /app/ATLAS-toolkit
 
-# 8) Initialize ASE 
-RUN python3 /app/api/ase_test.py
-
-# 9) Build the Next.js app
+# 8) Build the Next.js app
 RUN cd /app/frontend && npm run build
 
-# 10) Expose both ports
+# 9) Expose both ports
 EXPOSE 3000 8000
 
-# 11) Launch with PM2
+# 10) Launch with PM2
 WORKDIR /app
 CMD ["pm2-runtime", "--pm2-home", "/app/api/temp/.pm2", "ecosystem.config.js", "--env", "production"]
