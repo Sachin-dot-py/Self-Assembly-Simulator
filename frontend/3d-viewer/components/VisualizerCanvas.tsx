@@ -5,11 +5,11 @@
  * Renders atoms and simulation box
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import * as THREE from "three";
 import styled from "styled-components";
 import { useTrajectoryStore } from "../store/trajectoryStore";
-import { getAtomTypeInfo } from "../utils/atomTypes";
+import { getAtomTypeInfo, getAtomColorBySymbol } from "../utils/atomTypes";
 import {
   boxToMatrix,
   calculateBoxRadius,
@@ -31,10 +31,12 @@ const CanvasWrapper = styled.div`
 
 interface VisualizerCanvasProps {
   particleRadius?: number;
+  topologyContent?: string; // Optional topology (BGF/PDB-like) to map atom IDs to symbols for accurate colors
 }
 
 export default function VisualizerCanvas({
   particleRadius = 0.4,
+  topologyContent,
 }: VisualizerCanvasProps) {
   const domRef = useRef<HTMLDivElement>(null);
   const boxGroupRef = useRef<THREE.Group | null>(null);
@@ -50,6 +52,28 @@ export default function VisualizerCanvas({
     setParticles,
   } = useTrajectoryStore();
 
+  // Cache atomId -> element symbol if topology provided
+  const atomIdToSymbol = useMemo(() => {
+    if (!topologyContent) return new Map<number, string>();
+    const map = new Map<number, string>();
+    const lines = topologyContent.split("\n");
+
+    for (const line of lines) {
+      if (!line.startsWith("HETATM") && !line.startsWith("ATOM  ")) continue;
+      const tokens = line.trim().split(/\s+/);
+      if (tokens.length < 3) continue;
+
+      const id = parseInt(tokens[1], 10);
+      if (!Number.isFinite(id)) continue;
+
+      let symbol = tokens[2].replace(/\d+$/, "");
+      symbol = symbol.charAt(0).toUpperCase() + symbol.slice(1).toLowerCase();
+      map.set(id, symbol);
+    }
+
+    return map;
+  }, [topologyContent]);
+
   // Initialize visualizer function
   const initializeVisualizer = useCallback(() => {
     if (!domRef.current || !Visualizer || visualizer) return;
@@ -62,15 +86,15 @@ export default function VisualizerCanvas({
     // Initialize post-processing
     newVisualizer.initPostProcessing({
       ssao: {
-        enabled: true,
+        enabled: false,
         radius: 10,
-        intensity: 5,
+        intensity: 0,
       },
     });
 
-    // Set lighting
-    newVisualizer.pointLight.intensity = 20.0;
-    newVisualizer.ambientLight.intensity = 0.05;
+    // Bright, even lighting
+    newVisualizer.pointLight.intensity = 0.0;
+    newVisualizer.ambientLight.intensity = 1.2;
 
     setVisualizer(newVisualizer);
     console.log("Visualizer initialized");
@@ -108,6 +132,41 @@ export default function VisualizerCanvas({
     };
   }, []);
 
+  // Helper to apply frame data (positions, colors, radii) to particles
+  const applyFrameData = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (p: any, vis: any, frame: { numAtoms: number; atoms: { ids: Int32Array; types: Int32Array; positions: Float32Array } }) => {
+      p.positions.set(frame.atoms.positions);
+      p.types.set(frame.atoms.types);
+      p.indices.set(frame.atoms.ids);
+      p.count = frame.numAtoms;
+
+      if (p.mesh) {
+        p.mesh.count = frame.numAtoms;
+      }
+
+      p.markNeedsUpdate();
+
+      // Prefer per-atom coloring if topology mapping available; otherwise color per type
+      // Build type -> color using topology mapping when available
+      const seenTypes = new Set<number>();
+      for (let i = 0; i < frame.numAtoms; i++) {
+        const type = frame.atoms.types[i];
+        if (seenTypes.has(type)) continue;
+        seenTypes.add(type);
+
+        const atomId = frame.atoms.ids[i];
+        const symbol = atomIdToSymbol.get(atomId);
+        const typeInfo = getAtomTypeInfo(type);
+        const color = symbol ? getAtomColorBySymbol(symbol) ?? typeInfo.color : typeInfo.color;
+
+        vis.setRadius(type, particleRadius * typeInfo.radius);
+        vis.setColor(type, color);
+      }
+    },
+    [particleRadius, atomIdToSymbol]
+  );
+
   // Create particles when trajectory loads
   useEffect(() => {
     if (!visualizer || !trajectory || !Particles) return;
@@ -123,8 +182,35 @@ export default function VisualizerCanvas({
     const newParticles = new Particles(numAtoms);
     newParticles.count = numAtoms;
 
-    // Add to visualizer
+    // Set initial frame data BEFORE adding to visualizer so indices are populated
+    const firstFrame = trajectory.frames[0];
+    if (firstFrame) {
+      newParticles.positions.set(firstFrame.atoms.positions);
+      newParticles.types.set(firstFrame.atoms.types);
+      newParticles.indices.set(firstFrame.atoms.ids);
+    }
+
+    // Add to visualizer (this creates the mesh + geometry)
     visualizer.add(newParticles);
+
+    // Now apply colors and radii
+    if (firstFrame) {
+      const seenTypes = new Set<number>();
+      for (let i = 0; i < firstFrame.numAtoms; i++) {
+        const type = firstFrame.atoms.types[i];
+        if (seenTypes.has(type)) continue;
+        seenTypes.add(type);
+
+        const atomId = firstFrame.atoms.ids[i];
+        const symbol = atomIdToSymbol.get(atomId);
+        const atomType = getAtomTypeInfo(type);
+        const color = symbol ? getAtomColorBySymbol(symbol) ?? atomType.color : atomType.color;
+
+        visualizer.setRadius(type, particleRadius * atomType.radius);
+        visualizer.setColor(type, color);
+      }
+    }
+
     setParticles(newParticles);
 
     // Cleanup
@@ -133,7 +219,7 @@ export default function VisualizerCanvas({
         visualizer.remove(newParticles);
       }
     };
-  }, [visualizer, trajectory?.totalFrames]);
+  }, [visualizer, trajectory?.totalFrames, atomIdToSymbol, particleRadius]);
 
   // Update particle positions when frame changes
   useEffect(() => {
@@ -142,29 +228,8 @@ export default function VisualizerCanvas({
     const frame = trajectory.frames[currentFrame];
     if (!frame) return;
 
-    // Update positions
-    particles.positions.set(frame.atoms.positions);
-    particles.types.set(frame.atoms.types);
-    particles.indices.set(frame.atoms.ids);
-    particles.count = frame.numAtoms;
-
-    if (particles.mesh) {
-      particles.mesh.count = frame.numAtoms;
-    }
-
-    particles.markNeedsUpdate();
-
-    // Apply colors and radii based on atom types
-    for (let i = 0; i < frame.numAtoms; i++) {
-      const realIndex = frame.atoms.ids[i];
-      const type = frame.atoms.types[i];
-      const atomType = getAtomTypeInfo(type);
-
-      const radius = particleRadius * atomType.radius;
-      visualizer.setRadius(realIndex, radius);
-      visualizer.setColor(realIndex, atomType.color);
-    }
-  }, [currentFrame, trajectory, visualizer, particles, particleRadius]);
+    applyFrameData(particles, visualizer, frame);
+  }, [currentFrame, trajectory, visualizer, particles, particleRadius, applyFrameData]);
 
   // Update simulation box
   useEffect(() => {

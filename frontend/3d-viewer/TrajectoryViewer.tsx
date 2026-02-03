@@ -65,6 +65,8 @@ const InfoOverlay = styled.div`
 export interface TrajectoryViewerProps {
   /** Raw .lammpstrj file content */
   trajectoryContent: string;
+  /** Optional topology content (BGF/PDB-like) to map atom IDs to element symbols */
+  topologyContent?: string;
   /** Component height (default: "100vh") */
   height?: string;
   /** Component width (default: "100%") */
@@ -83,6 +85,7 @@ export interface TrajectoryViewerProps {
 
 export default function TrajectoryViewer({
   trajectoryContent,
+  topologyContent,
   height = "100vh",
   width = "100%",
   autoPlay = false,
@@ -214,7 +217,7 @@ export default function TrajectoryViewer({
 
   return (
     <ViewerContainer $height={height} $width={width}>
-      <VisualizerCanvas particleRadius={particleRadius} />
+      <VisualizerCanvas particleRadius={particleRadius} topologyContent={topologyContent} />
 
       <InfoOverlay>
         Atoms: {trajectory.atomCount} | Frames: {trajectory.totalFrames}

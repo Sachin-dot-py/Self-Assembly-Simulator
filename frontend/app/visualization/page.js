@@ -5,6 +5,7 @@ import VariablePlot from './VariablePlot';
 import Container from 'react-bootstrap/Container';
 import Navigation from '../components/Navigation';
 import dynamic from 'next/dynamic';
+import { getAtomColorBySymbol, rgbToCss } from '../../3d-viewer/utils/atomTypes';
 
 const TrajectoryViewer = dynamic(
   () => import('../../3d-viewer').then((mod) => mod.TrajectoryViewer),
@@ -31,49 +32,6 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FaBell } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-
-const ELEMENT_COLORS = {
-    'H': 'White',
-    'C': 'Cyan',
-    'N': 'Blue',
-    'O': 'Red',
-    'S': 'Yellow',
-    'P': 'Orange',
-    'Fe': 'Brown',
-    'Mg': 'Green',
-    'Ca': 'Light Blue',
-    'Zn': 'Slate',
-    'Na': 'Blue',
-    'Cl': 'Green',
-    'Br': 'Dark Red',
-    'I': 'Purple',
-    'F': 'Green',
-    'Cu': 'Brown',
-    'K': 'Purple',
-    'Pb': 'Dark Grey',
-    'Au': 'Gold',
-    'Ag': 'Silver',
-    'Al': 'Silver',
-    'Ar': 'Cyan',
-    'Ba': 'Green',
-    'Be': 'Dark Grey',
-    'Bi': 'Pink',
-    'B': 'Light Green',
-    'Cd': 'Slate',
-    'Cr': 'Dark Blue',
-    'Co': 'Blue',
-    'Ga': 'Silver',
-    'He': 'Yellow',
-    'Li': 'Purple',
-    'Mn': 'Dark Brown',
-    'Ni': 'Turquoise',
-    'Ra': 'Violet',
-    'Rb': 'Violet',
-    'Sc': 'Silver',
-    'Se': 'Orange',
-    'Si': 'Dark Green',
-    'Th': 'Slate'
-};
 
 export default function Page() {
     const [htmlContent, setHtmlContent] = useState('Loading...');
@@ -105,23 +63,24 @@ export default function Page() {
         const fetchData = async () => {
             try {
                 const response = await fetch('/api/getfiles/' + visualId);
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
                 const data = await response.json();
-                setLog(data.log);
-                setTrajectory(data.trajectory);
+                setLog(data.log || '');
+                setTrajectory(data.trajectory || '');
+                setHtmlContent(data.topology || '');
 
-                // Parse topology file (XYZ format) to find unique elements
+                // Parse topology file (BGF format) to find unique elements
                 const topologyLines = data.topology.split('\n');
                 const uniqueElements = new Set();
 
-                topologyLines.forEach((line, index) => {
-                    // Skip first two lines (atom count and comment)
-                    if (index < 2) return;
-                    const trimmedLine = line.trim();
-                    if (!trimmedLine) return;
-                    const tokens = trimmedLine.split(/\s+/);
-                    if (tokens.length >= 4) {
-                        let element = tokens[0];
-                        // Capitalize first letter, lowercase rest (e.g., "NA" -> "Na")
+                topologyLines.forEach((line) => {
+                    if (!line.startsWith('HETATM') && !line.startsWith('ATOM  ')) return;
+                    const tokens = line.trim().split(/\s+/);
+                    if (tokens.length >= 3) {
+                        // Atom name is token[2] (e.g. "Na1", "Cl1") — strip trailing digits
+                        let element = tokens[2].replace(/\d+$/, '');
                         element = element.charAt(0).toUpperCase() + element.slice(1).toLowerCase();
                         uniqueElements.add(element);
                     }
@@ -145,6 +104,7 @@ export default function Page() {
                     <Col className={styles.visualizationCol}>
                         <TrajectoryViewer
                             trajectoryContent={trajectory}
+                              topologyContent={htmlContent}
                             height="500px"
                             width="100%"
                             autoPlay={false}
@@ -203,9 +163,13 @@ Repeat the video a few times while looking at the plots and notice how each prop
                                         <div key={element} className={styles.legendItem}>
                                             <div
                                                 className={styles.colorBox}
-                                                style={{ backgroundColor: ELEMENT_COLORS[element] || 'grey' }}
+                                                style={{
+                                                    backgroundColor: rgbToCss(getAtomColorBySymbol(element) || { r: 128, g: 128, b: 128 })
+                                                }}
                                             ></div>
-                                            <span className={styles.legendText}>{element} ({ELEMENT_COLORS[element] || 'Unknown Color'})</span>
+                                            <span className={styles.legendText}>
+                                                {element} ({rgbToCss(getAtomColorBySymbol(element) || { r: 128, g: 128, b: 128 })})
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
@@ -215,26 +179,26 @@ Repeat the video a few times while looking at the plots and notice how each prop
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Temperature" variableUnit="K" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={1} variableName="Temperature" variableUnit="K" plotType="ionic" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Potential Energy" variableUnit="eV" plotType="ionic" />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Kinetic Energy" variableUnit="eV" plotType="ionic" />
-                    </Col>
-                    <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Total Energy" variableUnit="eV" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={3} variableName="Potential Energy" variableUnit="kcal/mol" plotType="ionic" />
                     </Col>
                 </Row>
                 <Row>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Density" variableUnit="g/cm³" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={4} variableName="Kinetic Energy" variableUnit="kcal/mol" plotType="ionic" />
                     </Col>
                     <Col className={styles.plotCol}>
-                        <VariablePlot log={log} sliderValue={sliderValue} variableName="Pressure" variableUnit="bar" plotType="ionic" />
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={5} variableName="Total Energy" variableUnit="kcal/mol" plotType="ionic" />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={20} variableName="Density" variableUnit="g/cm³" plotType="ionic" />
+                    </Col>
+                    <Col className={styles.plotCol}>
+                        <VariablePlot log={log} sliderValue={sliderValue} variableIndex={2} variableName="Pressure" variableUnit="atm" plotType="ionic" />
                     </Col>
                 </Row>
             </Container>

@@ -102,6 +102,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
 
     // Detect CSV format by checking if first line contains the CSV header
     const isCSV = useMemo(() => {
+        if (!log) return false;
         const firstLine = log.split('\n')[0];
         return firstLine && firstLine.includes('md_step');
     }, [log]);
@@ -110,6 +111,8 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         let xData = [];
         let variableData = [];
         let colors = [];
+
+        if (!log) return { xData, variableData, colors };
 
         if (isCSV) {
             // ---- CSV / UMA thermo.csv path ----
@@ -217,8 +220,8 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         });
     };
 
-    const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
-    const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
+    const mean = variableData.length > 0 ? variableData.reduce((acc, val) => acc + val, 0) / variableData.length : 0;
+    const stdDev = variableData.length > 0 ? Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length) : 0;
     const lowerBound = mean - 2 * stdDev;
     const upperBound = mean + 2 * stdDev;
 
