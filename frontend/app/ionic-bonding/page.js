@@ -86,7 +86,7 @@ export default function EditorPage() {
         <div style={{ textAlign: 'center', marginTop: '2rem', padding: '2rem', backgroundColor: '#f0f0f0', borderRadius: '15px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', width: 'fit-content' }}>
           <LoadingButton variant="success" style={{ fontWeight: 'bold', fontSize: '2.2rem', padding: '1rem 3rem' }}>Visualize Self-Assembly</LoadingButton>
           <p style={{ marginTop: '1rem', fontStyle: 'italic', color: '#6c757d' }}>
-            The visualization process might take up to 1-3 minutes.
+            Each run takes about 1 minute once it starts. If there is a queue, your place in line is shown above the button while it runs.
           </p>
         </div>
       </div>

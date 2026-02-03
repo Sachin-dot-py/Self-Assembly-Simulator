@@ -146,16 +146,23 @@ useEffect(() => {
   // format helpers
   const fmtTime = d => new Date(d).toLocaleTimeString();
   const fmtDur = ms => {
-    const totalSec = Math.floor(ms/1000);
+    const totalSec = Math.max(0, Math.floor(ms/1000));
     const m = Math.floor(totalSec/60);
     const s = totalSec % 60;
     return `${m}m ${s}s`;
   };
+
+  // Rough runtime per job: about 1 minute per submission.
+  const JOB_RUNTIME_MS = 1 * 60 * 1000;
   const estWait = () => {
-    const remainSec = position * 2*60 - Math.floor(elapsed/1000);
-    if (remainSec <= 0) return 'just about now';
-    const m = Math.floor(remainSec/60), s = remainSec%60;
-    return `${m}m ${s}s`;
+    if (position === null) return 'calculating…';
+    // If we're already being processed (position 0), show remaining based on runtime minus elapsed.
+    if (position === 0) {
+      const remaining = Math.max(0, JOB_RUNTIME_MS - elapsed);
+      return remaining === 0 ? 'wrapping up' : fmtDur(remaining);
+    }
+    // Otherwise, queue wait: each job ~JOB_RUNTIME_MS.
+    return fmtDur(position * JOB_RUNTIME_MS);
   };
 
   // -------------------------------------------------------------------------
