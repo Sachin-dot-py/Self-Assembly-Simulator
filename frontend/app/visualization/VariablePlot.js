@@ -23,7 +23,11 @@ const csvLegendLabels = [
     { text: "Final NVT equilibration", fillStyle: 'rgba(144, 238, 144, 1)' },
 ];
 
-const options = (variableName, variableUnit, plotType, isCSV) => ({
+const options = (variableName, variableUnit, plotType, isCSV) => {
+    // Show legend for ionic plots, CSV plots, and gold (LAMMPS) plots
+    const showLegend = plotType === "ionic" || isCSV || plotType === "gold";
+
+    return {
     plugins: {
         title: {
             text: `${variableName}`,
@@ -37,7 +41,7 @@ const options = (variableName, variableUnit, plotType, isCSV) => ({
             },
         },
         legend: {
-            display: plotType === "ionic",
+            display: showLegend,
             position: 'top',
             labels: {
                 generateLabels: (chart) => {
@@ -69,7 +73,8 @@ const options = (variableName, variableUnit, plotType, isCSV) => ({
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
-});
+    };
+};
 
 export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit, plotType="gold" }) {
     const [isSmooth, setIsSmooth] = useState(true);
