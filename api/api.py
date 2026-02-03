@@ -365,10 +365,9 @@ class Visualize(Resource):
             # with everything after the 'timestep 1' line from the outer file
             merged_content = current_lines[:current_split_idx + 1] + template_lines[outer_split_idx + 1:]
 
-            # Overwrite the current in.lammps with the merged content
+            # Overwrite the current in.lammps with the merged content (generated header + template body)
             with open(os.path.join(visual_dir, 'in.lammps'), 'w') as f:
-                # f.writelines(merged_content) # TODO: Removed the Create Lammps Input step for now. Just using the master in.lammps due to bug.
-                f.writelines(template_lines)
+                f.writelines(merged_content)
 
             # Step 3: Remove the files 'in.lammps_singlepoint' and 'lammps.lammps.slurm'
             files_to_remove = ['in.lammps_singlepoint', 'lammps.lammps.slurm']
