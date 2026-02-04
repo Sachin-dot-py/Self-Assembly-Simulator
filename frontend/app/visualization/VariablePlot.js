@@ -14,6 +14,12 @@ const lammpsLegendLabels = [
     { text: "Equilibrate (constant V) at room temperature", fillStyle: 'rgba(144, 238, 144, 1)' },
 ];
 
+const goldLegendLabels = [
+    { text: "Algorithm minimization", fillStyle: 'rgba(128, 128, 128, 1)' },
+    { text: "Heat (constant V) to room temperature", fillStyle: 'rgba(255, 99, 71, 1)' },
+    { text: "Maintain (constant P) at room temperature", fillStyle: 'rgba(30, 144, 255, 1)' },
+];
+
 const csvLegendLabels = [
     { text: "NPT heating: 1 → 298 K", fillStyle: 'rgba(255, 69, 0, 1)' },
     { text: "NPT equilibration: 298 K", fillStyle: 'rgba(30, 144, 255, 1)' },
@@ -45,7 +51,20 @@ const options = (variableName, variableUnit, plotType, isCSV) => {
             position: 'top',
             labels: {
                 generateLabels: (chart) => {
-                    return isCSV ? csvLegendLabels : lammpsLegendLabels;
+                    let labels;
+                    if (isCSV) {
+                        labels = csvLegendLabels;
+                    } else if (plotType === "gold") {
+                        labels = goldLegendLabels;
+                    } else {
+                        labels = lammpsLegendLabels;
+                    }
+                    return labels.map((item) => ({
+                        text: item.text,
+                        fillStyle: item.fillStyle,
+                        strokeStyle: item.fillStyle,
+                        lineWidth: 4,
+                    }));
                 },
             },
         },
@@ -150,7 +169,6 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 }
             }
         } else {
-            // ---- Original LAMMPS log path (unchanged) ----
             let insideData = false;
             let currentPhase = 'minimization';
 
@@ -171,6 +189,8 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                     currentPhase = 'final_equilibration';
                 } else if (line.includes('NVT dynamics to heat system')) {
                     currentPhase = 'heating';
+                } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm.')) {
+                    currentPhase = 'pressure_equilibration_1';
                 }
 
                 if (line.includes('Step')) {
@@ -255,6 +275,8 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
     const visibleColorsSlice = filteredColors.slice(0, maxVisibleIndex);
 
     const xLabel = isCSV ? 'Time' : 'Step';
+    const segmentColor = (ctx) => visibleColorsSlice[ctx.p0DataIndex] || 'rgba(0, 0, 0, 0.2)';
+
     const data = {
         labels: visibleXSlice,
         datasets: [
@@ -262,7 +284,10 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
                 label: `${xLabel} vs ${variableName} (${isSmooth ? 'Smooth' : 'Raw'})`,
                 data: visibleVariableDataSlice,
                 pointBackgroundColor: visibleColorsSlice,
-                borderColor: 'rgba(0, 0, 0, 0.1)',
+                pointRadius: 1.5,
+                borderColor: 'rgba(0, 0, 0, 0.2)',
+                borderWidth: 2,
+                segment: { borderColor: segmentColor },
                 tension: 0.4,
                 order: 1,
             },
