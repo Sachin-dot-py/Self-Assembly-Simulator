@@ -97,7 +97,8 @@ export function getAtomTypeInfo(typeIndex: number): AtomTypeInfo {
   }
 
   // For types beyond the default list, use extended colors cyclically
-  const colorIdx = idx % extendedColors.length;
+  // Handle negative indices properly (e.g., type 0 -> idx -1)
+  const colorIdx = ((idx % extendedColors.length) + extendedColors.length) % extendedColors.length;
   return {
     shortname: `T${typeIndex}`,
     fullname: `Type ${typeIndex}`,

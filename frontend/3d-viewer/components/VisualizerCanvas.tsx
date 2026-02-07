@@ -54,7 +54,10 @@ export default function VisualizerCanvas({
 
   // Cache atomId -> element symbol if topology provided
   const atomIdToSymbol = useMemo(() => {
-    if (!topologyContent) return new Map<number, string>();
+    if (!topologyContent) {
+      console.warn("VisualizerCanvas: No topology content provided");
+      return new Map<number, string>();
+    }
     const map = new Map<number, string>();
     const lines = topologyContent.split("\n");
 
@@ -66,11 +69,14 @@ export default function VisualizerCanvas({
       const id = parseInt(tokens[1], 10);
       if (!Number.isFinite(id)) continue;
 
-      let symbol = tokens[2].replace(/\d+$/, "");
+      // Normalize symbol: drop digits/charges (Na+, Cl-, Au1, etc.) and limit to 2 letters
+      const raw = tokens[2] || "";
+      let symbol = raw.replace(/[^A-Za-z]/g, "").slice(0, 2);
       symbol = symbol.charAt(0).toUpperCase() + symbol.slice(1).toLowerCase();
       map.set(id, symbol);
     }
 
+    console.log("VisualizerCanvas: Parsed topology, atomId -> symbol map:", Object.fromEntries(map));
     return map;
   }, [topologyContent]);
 
@@ -180,35 +186,47 @@ export default function VisualizerCanvas({
 
     // Create new particles object
     const newParticles = new Particles(numAtoms);
-    newParticles.count = numAtoms;
 
-    // Set initial frame data BEFORE adding to visualizer so indices are populated
+    // Get first frame to set up particles
     const firstFrame = trajectory.frames[0];
     if (firstFrame) {
+      console.log("VisualizerCanvas: Setting up", firstFrame.numAtoms, "particles using array-based approach");
+
+      // Set arrays directly (like omovi file parsers do)
       newParticles.positions.set(firstFrame.atoms.positions);
       newParticles.types.set(firstFrame.atoms.types);
       newParticles.indices.set(firstFrame.atoms.ids);
+      newParticles.count = firstFrame.numAtoms;
+
+      console.log("VisualizerCanvas: Arrays set, count =", newParticles.count);
     }
 
-    // Add to visualizer (this creates the mesh + geometry)
+    // Add to visualizer BEFORE setting colors/radii
     visualizer.add(newParticles);
+    console.log("VisualizerCanvas: Particles added to visualizer");
 
-    // Now apply colors and radii
+    // Now set colors and radii via visualizer methods (updates colorTexture/radiusTexture)
     if (firstFrame) {
-      const seenTypes = new Set<number>();
+      const typeColorMap = new Map<number, any>();
       for (let i = 0; i < firstFrame.numAtoms; i++) {
         const type = firstFrame.atoms.types[i];
-        if (seenTypes.has(type)) continue;
-        seenTypes.add(type);
-
-        const atomId = firstFrame.atoms.ids[i];
-        const symbol = atomIdToSymbol.get(atomId);
-        const atomType = getAtomTypeInfo(type);
-        const color = symbol ? getAtomColorBySymbol(symbol) ?? atomType.color : atomType.color;
-
-        visualizer.setRadius(type, particleRadius * atomType.radius);
-        visualizer.setColor(type, color);
+        if (!typeColorMap.has(type)) {
+          const atomId = firstFrame.atoms.ids[i];
+          const symbol = atomIdToSymbol.get(atomId);
+          const atomType = getAtomTypeInfo(type);
+          const color = symbol ? getAtomColorBySymbol(symbol) ?? atomType.color : atomType.color;
+          typeColorMap.set(type, { color, radius: particleRadius * atomType.radius, symbol });
+        }
       }
+
+      console.log("VisualizerCanvas: Setting colors and radii for", typeColorMap.size, "types");
+      typeColorMap.forEach(({ color, radius, symbol }, type) => {
+        visualizer.setColor(type, color);
+        visualizer.setRadius(type, radius);
+        console.log(`  Type ${type} (${symbol || 'unknown'}): color=`, color, `radius=${radius}`);
+      });
+
+      console.log("VisualizerCanvas: Colors and radii set via visualizer methods");
     }
 
     setParticles(newParticles);

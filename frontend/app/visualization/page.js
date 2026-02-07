@@ -67,6 +67,11 @@ export default function Page() {
                     throw new Error(`API returned ${response.status}`);
                 }
                 const data = await response.json();
+                console.log('Visualization page: Fetched data', {
+                    logLength: data.log?.length || 0,
+                    trajectoryLength: data.trajectory?.length || 0,
+                    topologyLength: data.topology?.length || 0
+                });
                 setLog(data.log || '');
                 setTrajectory(data.trajectory || '');
                 setHtmlContent(data.topology || '');
@@ -86,6 +91,7 @@ export default function Page() {
                     }
                 });
 
+                console.log('Visualization page: Found elements:', Array.from(uniqueElements));
                 setElements(Array.from(uniqueElements));
             } catch (error) {
                 console.error('Error fetching data:', error);
