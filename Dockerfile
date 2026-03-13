@@ -10,13 +10,14 @@ RUN apt-get update && \
       lammps openbabel libopenbabel-dev libatlas-base-dev ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
-# 3) Build & install VMD from your local source tree
-COPY vmd-1.9.3 /tmp/vmd-1.9.3
-RUN cd /tmp/vmd-1.9.3 && \
-    ./configure LINUXAMD64 && \
+# 3) Install VMD from the official text-mode binary distribution
+COPY vmd-1.9.3.bin.LINUXAMD64.text.tar.gz /tmp/vmd-1.9.3.bin.LINUXAMD64.text.tar.gz
+RUN tar -xzf /tmp/vmd-1.9.3.bin.LINUXAMD64.text.tar.gz -C /tmp && \
+    cd /tmp/vmd-1.9.3 && \
+    ./configure && \
     cd src && \
     make install && \
-    rm -rf /tmp/vmd-1.9.3
+    rm -rf /tmp/vmd-1.9.3 /tmp/vmd-1.9.3.bin.LINUXAMD64.text.tar.gz
 ENV PATH="/usr/local/vmd/bin:${PATH}"
 
 # 4) Install PM2 globally so we can run both processes
