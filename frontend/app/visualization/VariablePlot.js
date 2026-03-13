@@ -1,10 +1,104 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import Chart from 'chart.js/auto';
+import React, { useState, useMemo } from 'react';
+import 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
-import regression from 'regression';
 import { Form, Container, Row, Col } from 'react-bootstrap';
 
-const options = (variableName, variableUnit, plotType) => ({
+const THERMO_INDEX_TO_KEY = {
+    1: 'temp',
+    2: 'press',
+    3: 'pe',
+    4: 'ke',
+    5: 'etotal',
+    6: 'evdwl',
+    7: 'ecoul',
+    8: 'epair',
+    9: 'ebond',
+    10: 'eangle',
+    11: 'edihed',
+    12: 'eimp',
+    13: 'emol',
+    14: 'elong',
+    15: 'etail',
+    16: 'enthalpy',
+    17: 'ecouple',
+    18: 'econserve',
+    19: 'vol',
+    20: 'density',
+};
+
+const MULTI_THERMO_KEY_MAP = {
+    temp: 'Temp',
+    press: 'Press',
+    pe: 'PotEng',
+    ke: 'KinEng',
+    etotal: 'TotEng',
+    evdwl: 'E_vdwl',
+    ecoul: 'E_coul',
+    ebond: 'E_bond',
+    eangle: 'E_angle',
+    edihed: 'E_dihed',
+    eimp: 'E_impro',
+    elong: 'E_long',
+};
+
+const PHASES_BY_PLOT_TYPE = {
+    ionic: {
+        minimization: {
+            label: 'Algorithm minimization',
+            color: 'rgba(128, 128, 128, 1)',
+            markers: ['500 steps CG Minimization'],
+        },
+        heating_1: {
+            label: 'Heat (constant V) to room temperature',
+            color: 'rgba(255, 69, 0, 1)',
+            markers: ['NVT dynamics to heat system x1'],
+        },
+        pressure_equilibration_1: {
+            label: 'Maintain (constant P) at room temperature',
+            color: 'rgba(30, 144, 255, 1)',
+            markers: ['NPT dynamics with an isotropic pressure of 1atm. x1'],
+        },
+        heating_2: {
+            label: 'Heat/anneal (constant V) to 1000K',
+            color: 'rgba(255, 140, 0, 1)',
+            markers: ['NVT dynamics to heat system x2'],
+        },
+        pressure_equilibration_2: {
+            label: 'Maintain (constant P) at 1000K',
+            color: 'rgba(100, 149, 237, 1)',
+            markers: ['NPT dynamics with an isotropic pressure of 1atm. x2'],
+        },
+        cooling: {
+            label: 'Cool (constant P) to room temperature',
+            color: 'rgba(0, 191, 255, 1)',
+            markers: ['NPT dynamics to cool system'],
+        },
+        final_equilibration: {
+            label: 'Equilibrate (constant V) at room temperature',
+            color: 'rgba(144, 238, 144, 1)',
+            markers: ['NVT dynamics for equilibration'],
+        },
+    },
+    gold: {
+        minimization: {
+            label: 'Algorithm minimization',
+            color: 'rgba(128, 128, 128, 1)',
+            markers: ['500 steps CG Minimization', '#now                 minimize the entire system'],
+        },
+        heating: {
+            label: 'Heat (constant V) to room temperature',
+            color: 'rgba(255, 99, 71, 1)',
+            markers: ['NVT dynamics to heat system'],
+        },
+        pressure_equilibration_1: {
+            label: 'Maintain (constant P) at room temperature',
+            color: 'rgba(30, 144, 255, 1)',
+            markers: ['NPT dynamics with an isotropic pressure of 1atm.'],
+        },
+    },
+};
+
+const options = (variableName, variableUnit, phaseLegend) => ({
     plugins: {
         title: {
             text: `${variableName}`,
@@ -18,41 +112,15 @@ const options = (variableName, variableUnit, plotType) => ({
             },
         },
         legend: {
-            display: plotType === "ionic",
+            display: phaseLegend.length > 0,
             position: 'top',
             labels: {
-                // Custom legend to label each phase color
-                generateLabels: (chart) => {
-                    return [
-                        {
-                            text: "Algorithm minimization",
-                            fillStyle: 'rgba(128, 128, 128, 1)',
-                        },
-                        {
-                            text: "Heat (constant V) to room temperature",
-                            fillStyle: 'rgba(255, 69, 0, 1)',
-                        },
-                        {
-                            text: "Maintain (constant P) at room temperature",
-                            fillStyle: 'rgba(30, 144, 255, 1)',
-                        },
-                        {
-                            text: "Heat/anneal (constant V) to 1000K",
-                            fillStyle: 'rgba(255, 140, 0, 1)',
-                        },
-                        {
-                            text: "Maintain (constant P) at 1000K",
-                            fillStyle: 'rgba(100, 149, 237, 1)',
-                        },
-                        {
-                            text: "Cool (constant P) to room temperature",
-                            fillStyle: 'rgba(0, 191, 255, 1)',
-                        },
-                        {
-                            text: "Equilibrate (constant V) at room temperature",
-                            fillStyle: 'rgba(144, 238, 144, 1)',
-                        },
-                    ];
+                generateLabels: () => {
+                    return phaseLegend.map((phase) => ({
+                        text: phase.label,
+                        fillStyle: phase.color,
+                        strokeStyle: phase.color,
+                    }));
                 },
             },
         },
@@ -84,88 +152,111 @@ const options = (variableName, variableUnit, plotType) => ({
 
 export default function VariablePlot({ log, sliderValue, variableIndex, variableName, variableUnit, plotType="gold" }) {
     const [isSmooth, setIsSmooth] = useState(true);
+    const phaseConfig = PHASES_BY_PLOT_TYPE[plotType] || PHASES_BY_PLOT_TYPE.gold;
 
-    const phaseColors = {
-        minimization: 'rgba(128, 128, 128, 1)', 
-        heating_1: 'rgba(255, 69, 0, 1)',       
-        pressure_equilibration_1: 'rgba(30, 144, 255, 1)', 
-        heating_2: 'rgba(255, 140, 0, 1)',   
-        pressure_equilibration_2: 'rgba(100, 149, 237, 1)', 
-        cooling: 'rgba(0, 191, 255, 1)',       
-        final_equilibration: 'rgba(144, 238, 144, 1)', 
-        heating: 'rgba(255, 99, 71, 1)',
-    };
+    const { steps, variableData, colors, phasesPresent } = useMemo(() => {
+        const steps = [];
+        const variableData = [];
+        const colors = [];
+        const phasesPresent = new Set();
+        const targetKey = THERMO_INDEX_TO_KEY[variableIndex];
+        const multiTargetKey = MULTI_THERMO_KEY_MAP[targetKey];
 
-    const phaseLabels = {
-        minimization: 'Algorithm minimization',
-        heating_1: 'Heat (constant V) to room temperature',
-        pressure_equilibration_1: 'Maintain (constant P) at room temperature',
-        heating_2: 'Heat/anneal (constant V) to 1000K',
-        pressure_equilibration_2: 'Maintain (constant P) at 1000K',
-        cooling: 'Cool (constant P) to room temperature',
-        final_equilibration: 'Equilibrate (constant V) at room temperature',
-        heating: 'Heating',
-    };
-
-    const { steps, variableData, colors } = useMemo(() => {
-        let index = 0;
-        let steps = [];
-        let variableData = [];
-        let colors = [];
-        let insideData = false;
+        let insideCustomData = false;
+        let insideMultiData = false;
         let currentPhase = 'minimization';
+        let pendingMultiRecord = null;
+
+        const pushPoint = (step, variableValue) => {
+            if (Number.isNaN(step) || Number.isNaN(variableValue) || step < 100) {
+                return;
+            }
+
+            const phase = phaseConfig[currentPhase] || phaseConfig.minimization;
+            steps.push(step);
+            variableData.push(variableValue);
+            colors.push(phase.color);
+            phasesPresent.add(currentPhase);
+        };
+
+        const finalizeMultiRecord = () => {
+            if (!pendingMultiRecord || !multiTargetKey) {
+                pendingMultiRecord = null;
+                return;
+            }
+
+            const variableValue = parseFloat(pendingMultiRecord[multiTargetKey]);
+            pushPoint(pendingMultiRecord.step, variableValue);
+            pendingMultiRecord = null;
+        };
 
         log.split('\n').forEach((line) => {
-            if (line.includes('500 steps CG Minimization')) {
-                currentPhase = 'minimization';
-            } else if (line.includes('NVT dynamics to heat system x1')) {
-                currentPhase = 'heating_1';
-            } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm. x1')) {
-                currentPhase = 'pressure_equilibration_1';
-            } else if (line.includes('NVT dynamics to heat system x2')) {
-                currentPhase = 'heating_2';
-            } else if (line.includes('NPT dynamics with an isotropic pressure of 1atm. x2')) {
-                currentPhase = 'pressure_equilibration_2';
-            } else if (line.includes('NPT dynamics to cool system')) {
-                currentPhase = 'cooling';
-            } else if (line.includes('NVT dynamics for equilibration')) {
-                currentPhase = 'final_equilibration';
-            } else if (line.includes('NVT dynamics to heat system')) {
-                currentPhase = 'heating';
+            const matchingPhaseKey = Object.entries(phaseConfig).find(([, phase]) =>
+                phase.markers.some((marker) => line.includes(marker))
+            )?.[0];
+
+            if (matchingPhaseKey) {
+                currentPhase = matchingPhaseKey;
             }
 
-            if (line.includes('Step')) {
-                insideData = true;
+            if (line.startsWith('------------ Step')) {
+                finalizeMultiRecord();
+                insideMultiData = true;
+                insideCustomData = false;
+
+                const stepMatch = line.match(/Step\s+(-?\d+)/);
+                pendingMultiRecord = stepMatch ? { step: parseInt(stepMatch[1], 10) } : null;
                 return;
             }
-            if (insideData && (line.includes('SHAKE') || line.includes('Bond'))) {
-                return;
-            }
-            if (insideData && line.includes('Loop time of')) {
-                insideData = false;
-                return;
-            }
-            if (insideData) {
-                let columns = line.trim().split(/\s+/);
-                let step = parseInt(columns[0]);
-                if (step < 100){ 
+
+            if (insideMultiData) {
+                if (line.includes('Loop time of')) {
+                    finalizeMultiRecord();
+                    insideMultiData = false;
                     return;
                 }
-                let variableValue = parseFloat(columns[variableIndex]);
 
-                let color = phaseColors[currentPhase];
-
-                if (!isNaN(step) && !isNaN(variableValue)) {
-                    steps.push(step);
-                    variableData.push(variableValue);
-                    colors.push(color);
+                const entries = [...line.matchAll(/([A-Za-z_]+)\s*=\s*([-\d.+Ee]+)/g)];
+                if (pendingMultiRecord && entries.length > 0) {
+                    entries.forEach(([, key, value]) => {
+                        pendingMultiRecord[key] = value;
+                    });
                 }
-                index++;
+                return;
+            }
+
+            if (line.trim().startsWith('Step')) {
+                insideCustomData = true;
+                return;
+            }
+
+            if (insideCustomData && line.includes('Loop time of')) {
+                insideCustomData = false;
+                return;
+            }
+
+            if (insideCustomData && (line.includes('SHAKE') || line.startsWith('Bond:'))) {
+                return;
+            }
+
+            if (insideCustomData) {
+                const columns = line.trim().split(/\s+/);
+                const step = parseInt(columns[0], 10);
+                const variableValue = parseFloat(columns[variableIndex]);
+                pushPoint(step, variableValue);
             }
         });
 
-        return { steps, variableData, colors };
-    }, [log, variableIndex, phaseColors]);
+        finalizeMultiRecord();
+
+        return { steps, variableData, colors, phasesPresent };
+    }, [log, phaseConfig, variableIndex]);
+
+    const phaseLegend = useMemo(() => {
+        return Object.entries(phaseConfig)
+            .filter(([phaseKey]) => phasesPresent.has(phaseKey))
+            .map(([, phase]) => ({ label: phase.label, color: phase.color }));
+    }, [phaseConfig, phasesPresent]);
 
     const gaussianSmooth = (data, sigma = 2) => {
         const kernelSize = Math.ceil(sigma * 3) * 2 + 1;
@@ -186,8 +277,12 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         });
     };
 
-    const mean = variableData.reduce((acc, val) => acc + val, 0) / variableData.length;
-    const stdDev = Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length);
+    const mean = variableData.length > 0
+        ? variableData.reduce((acc, val) => acc + val, 0) / variableData.length
+        : 0;
+    const stdDev = variableData.length > 0
+        ? Math.sqrt(variableData.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / variableData.length)
+        : 0;
     const lowerBound = mean - 2 * stdDev;
     const upperBound = mean + 2 * stdDev;
 
@@ -203,7 +298,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
         { steps: [], variableData: [], colors: [] }
     );
 
-    const smoothData = isSmooth
+    const smoothData = isSmooth && filteredData.variableData.length > 0
         ? gaussianSmooth(filteredData.variableData)
         : filteredData.variableData;
 
@@ -260,7 +355,7 @@ export default function VariablePlot({ log, sliderValue, variableIndex, variable
             </Row>
             <Row>
                 <Col style={{ height: '500px', width: '100%' }}>
-                    <Line data={data} options={options(variableName, variableUnit, plotType)} />
+                    <Line data={data} options={options(variableName, variableUnit, phaseLegend)} />
                 </Col>
             </Row>
         </Container>
